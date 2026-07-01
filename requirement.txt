@@ -1,0 +1,88 @@
+I am gonna create a company / job site.
+I have to build this website using frontend + backend.
+Frontend = React + NextJS + Tailwind CSS + Webpack + shadcn/ui + TanStack Query + Zustand + Zod + Framer Motion
+ + Sentry + ESLint + Prettier + Vitest.
+Backend = Node + Express + Prisma + Supabase + Multer + Resend + cors + dotenv
+Third Party = Resend (Email sending for sigup verification code) + Supabase (Main Database) + Cloudflare (Storage for pdf save) + imagekit.io (Storage for images save) + cloudinary (Storage for videos save)
+Deployment = Vercel Serverless (Because we use vercel serverless, socket and realtime and file writting forbidden to use here)
+You can use logo.png as company logo
+
+Project Requirements:
+
+1. Summary of website
+This is company website. The title is Felovy. The slogan of website is "For Every Life, Our Value Yields". This is Software Development Company. This is outsourcing company. Helps global clients find proper developers for their business and projects. This website helps developers find their high paying jobs and clients and provide freelancing opportunities.
+
+2. Signin / Signup
+- For developer Signup, developers can signup using their email and password first. When they sign up 6 digit codes sent to their email and developers type that 6 digit code and complete their signup and can signin using that email and password.
+- For employers Signup, employers can signup using their company email and password first. The frontend should verify if that email is company email (not personal email like gmail or outlook and so on). When they sign up 6 digit codes sent to thri email and employers type that 6 digit code and complete their signup and cna signin using that email and password.
+- For signin, users can signin using their email and password. employers signin and developers signin should be different. For signin you have to use the latest and modern and secure jwt signin workflow.
+- For Developer Signup / Signin we can use OIDC. This is developer platform, we will use Github OIDC. So make feature for signup/signin using github account.
+- For Admins / Owner signup / signin using email + password
+
+3. Authentication & Authorization
+There are 4 kinds of users.
+- Developers: They are lowest level of users. They can see and update their developer profile. They can see the jobs of website and apply using their profiles.
+- Employers: They are mid level users. They can see and update their company profile. They can post / manage multiple jobs in website and see the proposals of developers and send feedback to them and can see their profiles.
+- Admins: They are moderators of website. Admins can mute / kick / ban developers and employers. Admins can create jobs and admins can allow / disallow job posts. The job posts of allowed by admins can be posted to the job board.
+- Owner: This is the Owner of website. The Owner has all permissions and have most powerful permission to give / take level of user. Owner can make other users admins. Owner can take adminship from users. Owner can delete other admins. Owner can deliver their ownership to other admin. Once deliver ownership that owner becomes normal admin. This means only 1 owner exists in website.
+
+4. Profile Updates
+- Developers: They can update their developer profile. There are several steps.
+In step 1, you can update your email and password. When you try to change email address, you have to send 6 digit code to original email for confirmation. And you can update your password to a new one.
+In step 2, you have to input detailed information about yourself. Full Name, Title, Phone Number, Location, Linkedin, Github, Summary, Skills, Work Experience, Education, Languages. Everytime you update step 2, the resume style profile viewer updates.
+In step 3, you have to upload your real photo or turn on camera and take your real picture and Introduction Video of 1 min (For Introduction Video you can turn on the camera and record video or input room video or google drive video link or any video link of your introduction). This highlight the possibility to get hired x 2
+In step 4, you have to upload the photo of your ID Card - National ID.
+Once the steps finishes, the profile goes into under review of admins. Once your profile approved, you get verified badge and can apply for jobs. If you didn't pass the all steps, you cannot apply for jobs.
+
+- Employers: They can update their company profile. There are several steps.
+In step 1, you can update your company email and password. When you try to change company email address, you have to send 6 digit code to original email for confirmation. And you can update your password to a new one.
+In Step 2, you have to input detailed information about your company and yourself. Company Name, Company Website Link, Company Introduction Summary, Company Size, Company Location, Company Linkedin, your Name, your role (CEO or COO and so on), Contact information.
+In step 3, you have to upload your company logo, company brand image (header image), Company ad images, your photo, Introduction Video (you can upload video directly or post video link).
+In step 4, you have to upload the photo of your ID Card - National ID.
+Once the steps finishes, the company profile goes into under review of admins. Once your company profile approved, you can get verified badge and can post jobs and search developers. If you didn't pass the all steps, you cannot post jobs or see the developer profiles. 
+
+- Admins: They can update their email and password. Admins sign up / sign in using email.
+You can update your email and password. When you try to change email address, you have to send 6 digit code to original email for confirmation. And you can update your password to a new one. Admins has full name and profile picture.
+
+- Owner: Owner can update their email and password. Owner sign up / sign in using email.
+You can update your email and password. When you try to change email address, you have to send 6 digit code to original email for confirmation. And you can update your password to a new one. Owner has full name and profile picture. In Owner's profile, owner can seee the list of admins and transfer ownership to other admin.
+The owner's email address is stored in database. The original owner's email address is mirocrush@gmail.com
+
+5. Job Post
+Employers can post Jobs. These are details the employers have to input:
+- Job title*
+- Job logo (Image upload)
+- Company Location
+- Location Type (Onsite, Hybrid, Remote)*
+- Salary Range (Hourly, Monthly, Yearly) with various kinds of currencies
+- Required Skills*
+- Nice to have skills
+- Languages
+- Industry
+Once employers post job, the job is under review of admins. Once approved, job have verified badge and job url and published date and publishes on job board. Admins can approve & block jobs. The employers can edit / enable / disable / delete their posted jobs. 
+
+6. Job board
+This is place where posted jobs are listed. employers and developers can see the jobs and only developers can apply for jobs. The job UI should be similar with justjoin.it. To explain in detail, on the top, there's a search box for job details, below the search box, there's stack categories with stack icons, recomennd you to use stack icons from https://devicon.dev/. Below that stack category bar, there's a sort by filter. Sortby: "Latest", "Salary", "Best Matches" Desending, Ascending. The left side bar has all kinds of filter related to job details. If user set a job favorite, it stored in favorite jobs filter and have heart icon. The job board should have pagination. Jobs should have posted date. Job item should be card style. When a user clicks a job item, it opens the job detail page. Job detail page is also similar with justjoin.it this is example: https://justjoin.it/job-offer/shimi-sp-z-o-o--senior-data-engineer-azure-databricks-m-f-n--poland-remote--data
+Admins can pin jobs to the top of job board.
+
+6. Job Apply
+Developers can apply jobs in job board.
+When a developer click the apply button in job detail page, if it's job from our website, we open job apply form and if that job is from other ATS systems, you are directed to the ats system. for the jobs from our websites, when you click apply button, that job apply form is filled automatically with the developer profile values and you can edit that values too. Once you apply for a job, that job is checked as appllied. For the jobs of our website, you cannot apply again and for the jobs from ATS, you can apply again. Developers can see the jobs they applied. For the jobs of our website, they can track the status and employers and developers can exchange messages like upwork platform. But this conversation can start only when employers sent message to the developer. Employers can block and unblock the conversations. All communication style is similar with upwork. In terms of apply form, you can input coverletter too.
+
+7. Infrastructure Requirements
+Because we are gonna deploy our website on vercel, we cannot use file writting and socket and realtime processes. So use alternative approaches. For file uploading, you have to upload files to the file storage services first and get the uploaded urls and save it to the db. for the socket, use your creative alternative approaches. For chatting, I have no idea yet so you have to think of best approach as much as possible and implement it.
+For db, I am gonna use Supabase PostgreSQL db. You can see REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY in .env
+For OTP email sending, you can use resend. You can see FELOVY_SIGNUP_RESEND_API_KEY in .env
+For image uploadings use imagekit.io you can see the required environments in .env
+For video uploadings use cloudinary.com you can see the required environments in .env
+For pdf and other file uploadings use supabase, the bucket name is "felovy"
+You can create required tables and buckets and fields and anything you need.
+
+8. Development Requirements
+You have to add comments for the critical architectual parts of code
+For backend, you have to use clean architecture
+For Frontend, you have to use reusable component
+
+9. UI / UX Requirements
+Our website name is "Felovy" and slogan is "For Every Life, Our Value Yields".
+Our logo is red-pink color and flower style. So I recommend you to build our website as red-pink-white main style website beautifully including flowers. The whole website site should be very beautiful and first page is flower style canvas background moving. the color concept is red-pink-white-purple. Our first version is white-colorful theme. 
