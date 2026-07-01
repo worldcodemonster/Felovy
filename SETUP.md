@@ -2,95 +2,71 @@
 
 ## Prerequisites
 - Node.js 18+
-- npm or pnpm
-- A Supabase project (already configured in .env)
+- npm
+- A Supabase project
 - Accounts on: Resend, ImageKit, Cloudinary
 
-## 1. Backend Setup
+## 1. Install & configure
 
 ```bash
-cd backend
 npm install
-
-# Push Prisma schema to Supabase
+cp .env.example .env
+# Fill in all values in .env
 npx prisma db push
-
-# Generate Prisma client
-npx prisma generate
-
-# Start dev server (port 4000)
 npm run dev
 ```
 
-### Required .env values to fill in `backend/.env`:
-- `DATABASE_URL` and `DIRECT_URL` — from Supabase project settings → Database → Connection string
-- `SUPABASE_SERVICE_ROLE_KEY` — from Supabase → Settings → API (never expose to frontend)
-- `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` — generate with `openssl rand -hex 32`
-- `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` — create a GitHub OAuth App at github.com/settings/developers
-  - Callback URL: `http://localhost:4000/api/auth/github/callback`
-- `OWNER_SECRET` — any secret string you choose
+Open [http://localhost:3000](http://localhost:3000). The API runs at `/api` on the same server — no separate backend process.
 
-## 2. Frontend Setup
-
-```bash
-cd frontend
-npm install
-
-# Start dev server (port 3000)
-npm run dev
-```
-
-## 3. Supabase Storage
+## 2. Supabase Storage
 
 Create a public storage bucket called `felovy` in your Supabase dashboard:
-- Go to Storage → New Bucket
-- Name: `felovy`
-- Public: YES
+- Storage → New Bucket → Name: `felovy` → Public: YES
 
-## 4. Create Owner Account
+## 3. Create Owner Account
 
-POST to `http://localhost:4000/api/auth/admin/signup` with:
+POST to `http://localhost:3000/api/auth/admin/signup` with:
+
 ```json
 {
-  "email": "mirocrush@gmail.com",
+  "email": "your@email.com",
   "password": "your_secure_password",
   "fullName": "Site Owner",
   "ownerSecret": "your_owner_creation_secret"
 }
 ```
 
-## 5. Production Deployment (Vercel)
+## 4. Deploy to Vercel (one project)
 
-### Backend:
-1. Push `backend/` folder as a separate Vercel project
-2. Add all env variables in Vercel dashboard
-3. Set `FRONTEND_URL` to your frontend Vercel URL
+1. Push this repo to GitHub
+2. Import it on [vercel.com/new](https://vercel.com/new)
+3. Leave **Root Directory** empty (project root)
+4. Copy every variable from `.env` into Vercel → Settings → Environment Variables
+5. Set `NEXT_PUBLIC_SITE_URL` to your Vercel URL (e.g. `https://felovy.vercel.app`)
+6. Deploy
 
-### Frontend:
-1. Push `frontend/` folder as a separate Vercel project
-2. Add env variables in Vercel dashboard
-3. Set `NEXT_PUBLIC_API_URL` to your backend Vercel URL
+That's it — frontend and API deploy together as one Next.js app.
 
 ## Project Structure
 
 ```
 Felovy/
-├── backend/           Express API (deploys to Vercel serverless)
-│   ├── src/
-│   │   ├── config/    DB, Supabase, ImageKit, Cloudinary
-│   │   ├── controllers/
-│   │   ├── middlewares/
-│   │   ├── routes/
-│   │   ├── services/  Email, Upload
-│   │   ├── utils/     JWT, OTP
-│   │   └── index.ts
-│   └── prisma/schema.prisma
-│
-└── frontend/          Next.js 14 App Router
-    └── src/
-        ├── app/       Pages (landing, auth, jobs, dashboards)
-        ├── components/ UI components
-        ├── lib/        API client, utilities
-        ├── store/      Zustand auth store
-        └── types/      TypeScript types
+├── .env                 Single config file
+├── pages/api/[...all].ts  Express API mounted at /api/*
+├── prisma/              Database schema
+└── src/
+    ├── app/             Next.js pages
+    ├── server/          Express API (auth, jobs, messages, …)
+    ├── components/
+    └── lib/
 ```
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start dev server (frontend + API) |
+| `npm run build` | Production build |
+| `npm test` | Frontend unit tests |
+| `npm run test:api` | API unit/integration tests |
+| `npm run prisma:studio` | Open Prisma Studio |
