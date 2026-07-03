@@ -4,8 +4,9 @@ import dynamic from 'next/dynamic';
 import { Navbar } from '@/components/shared/Navbar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ScrollReveal } from '@/components/home/ScrollReveal';
-import { FloatingAIGuide } from '@/components/home/FloatingAIGuide';
+import { LazyWhenVisible } from '@/components/home/LazyWhenVisible';
+import { DeferredMount } from '@/components/home/DeferredMount';
+import { HeroMapPlaceholder } from '@/components/home/HeroMapPlaceholder';
 import {
   Code2, Globe, Shield, Star, Users, Briefcase, ArrowRight, Sparkles,
   UserPlus, ShieldCheck, Rocket, CheckCircle2, Zap,
@@ -15,10 +16,21 @@ import {
   Cpu, Gamepad2, Palette, Link2, Eye,
 } from 'lucide-react';
 
-const WorldMap = dynamic(() => import('@/components/home/WorldMap'), { ssr: false });
-const AnimatedSectionBg = dynamic(
-  () => import('@/components/home/AnimatedSectionBg').then(m => ({ default: m.AnimatedSectionBg })),
-  { ssr: false }
+const ScrollReveal = dynamic(
+  () => import('@/components/home/ScrollReveal').then((m) => ({ default: m.ScrollReveal })),
+  { ssr: false },
+);
+const FloatingAIGuide = dynamic(
+  () => import('@/components/home/FloatingAIGuide').then((m) => ({ default: m.FloatingAIGuide })),
+  { ssr: false },
+);
+const WorldMap = dynamic(() => import('@/components/home/WorldMap'), {
+  ssr: false,
+  loading: () => <HeroMapPlaceholder />,
+});
+const LazyAnimatedSectionBg = dynamic(
+  () => import('@/components/home/LazyAnimatedSectionBg').then((m) => ({ default: m.LazyAnimatedSectionBg })),
+  { ssr: false },
 );
 const DeveloperCarousel = dynamic(
   () => import('@/components/home/DeveloperCarousel').then(m => ({ default: m.DeveloperCarousel })),
@@ -263,14 +275,18 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
       <ScrollReveal />
-      <FloatingAIGuide />
+      <DeferredMount delayMs={1200}>
+        <FloatingAIGuide />
+      </DeferredMount>
       <Navbar />
 
       {/* ── 1. HERO — world map + title (KEPT INTACT) ── */}
       <section id="hero" className="relative min-h-[92vh] flex items-center overflow-hidden -mt-16 pt-16">
         <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
           <div className="absolute top-1/2 left-0 right-0 -translate-y-[46%] -translate-x-[4%] opacity-90">
-            <WorldMap mode="hero" />
+            <DeferredMount delayMs={300} fallback={<HeroMapPlaceholder />}>
+              <WorldMap mode="hero" />
+            </DeferredMount>
           </div>
           <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-white/50" />
         </div>
@@ -324,7 +340,7 @@ export default function HomePage() {
 
       {/* ── 2. TRUSTED BY — company logos ── */}
       <section className="py-16 border-y border-gray-100 bg-white relative overflow-hidden">
-        <AnimatedSectionBg variant="constellation" opacity={0.03} color="#e11d48" secondary="#a855f7" />
+        <LazyAnimatedSectionBg variant="constellation" opacity={0.03} color="#e11d48" secondary="#a855f7" />
         <div className="container mx-auto max-w-6xl px-4 text-center relative">
           <p data-animate="fade-down" className="text-xs font-bold tracking-[0.24em] uppercase text-gray-400 mb-10">
             Trusted by teams building the future
@@ -335,7 +351,7 @@ export default function HomePage() {
 
       {/* ── 11. HOW IT WORKS ── */}
       <section className="py-28 bg-gray-50/60 border-y border-gray-100 relative overflow-hidden">
-        <AnimatedSectionBg variant="constellation" opacity={0.04} color="#6366f1" secondary="#e11d48" />
+        <LazyAnimatedSectionBg variant="constellation" opacity={0.04} color="#6366f1" secondary="#e11d48" />
         {/* SVG dotted road path */}
         <svg className="absolute top-1/2 left-0 right-0 w-full -translate-y-1/2 opacity-[0.05] pointer-events-none" viewBox="0 0 1440 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
           <path d="M0,50 C360,10 720,90 1080,50 C1260,30 1380,70 1440,50" stroke="#e11d48" strokeWidth="2" fill="none" strokeDasharray="12 8"/>
@@ -384,7 +400,7 @@ export default function HomePage() {
 
       {/* ── 5. WHY FELOVY ── */}
       <section className="py-28 bg-white relative overflow-hidden">
-        <AnimatedSectionBg variant="waves" opacity={0.04} color="#e11d48" secondary="#a855f7" />
+        <LazyAnimatedSectionBg variant="waves" opacity={0.04} color="#e11d48" secondary="#a855f7" />
         {/* SVG flowing curves decoration */}
         <svg className="absolute bottom-0 left-0 right-0 w-full opacity-[0.06] pointer-events-none" viewBox="0 0 1440 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
           <path d="M0,90 C360,20 720,160 1080,80 C1260,40 1350,120 1440,90 L1440,180 L0,180 Z" fill="#e11d48"/>
@@ -419,7 +435,7 @@ export default function HomePage() {
 
       {/* ── 13. SECURITY & TRUST ── */}
       <section id="trust" className="py-24 bg-gray-50/70 border-y border-gray-100 relative overflow-hidden">
-        <AnimatedSectionBg variant="rings" opacity={0.05} color="#10b981" secondary="#e11d48" />
+        <LazyAnimatedSectionBg variant="rings" opacity={0.05} color="#10b981" secondary="#e11d48" />
         {/* SVG radial shield lines */}
         <svg className="absolute right-0 top-1/2 -translate-y-1/2 w-80 h-80 opacity-[0.05] pointer-events-none" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
           <polygon points="100,10 170,45 170,155 100,190 30,155 30,45" fill="none" stroke="#e11d48" strokeWidth="2"/>
@@ -457,7 +473,7 @@ export default function HomePage() {
 
       {/* ── 4. BENTO PLATFORM GRID ── */}
       <section className="py-24 bg-gray-50/70 border-y border-gray-100 relative overflow-hidden">
-        <AnimatedSectionBg variant="neural" opacity={0.04} color="#6366f1" secondary="#e11d48" />
+        <LazyAnimatedSectionBg variant="neural" opacity={0.04} color="#6366f1" secondary="#e11d48" />
         {/* SVG circuit-board lines decoration */}
         <svg className="absolute inset-0 w-full h-full opacity-[0.04] pointer-events-none" xmlns="http://www.w3.org/2000/svg">
           <defs><pattern id="circuit" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
@@ -554,7 +570,7 @@ export default function HomePage() {
 
       {/* ── 7. SERVICES ── */}
       <section id="services" className="py-28 bg-white relative overflow-hidden">
-        <AnimatedSectionBg variant="hex" opacity={0.04} color="#a855f7" secondary="#e11d48" />
+        <LazyAnimatedSectionBg variant="hex" opacity={0.04} color="#a855f7" secondary="#e11d48" />
         {/* SVG zigzag border decoration */}
         <svg className="absolute top-0 left-0 right-0 w-full opacity-[0.06] pointer-events-none" viewBox="0 0 1440 30" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
           <polyline points="0,30 60,0 120,30 180,0 240,30 300,0 360,30 420,0 480,30 540,0 600,30 660,0 720,30 780,0 840,30 900,0 960,30 1020,0 1080,30 1140,0 1200,30 1260,0 1320,30 1380,0 1440,30" fill="none" stroke="#e11d48" strokeWidth="2"/>
@@ -598,8 +614,9 @@ export default function HomePage() {
       </section>
 
       {/* ── DOMAINS — creative image gallery with overlay ── */}
+      <LazyWhenVisible minHeight="720px">
       <section id="domains" className="py-28 bg-white relative overflow-hidden">
-        <AnimatedSectionBg variant="hex" opacity={0.04} color="#e11d48" secondary="#a855f7" />
+        <LazyAnimatedSectionBg variant="hex" opacity={0.04} color="#e11d48" secondary="#a855f7" />
         <div className="container mx-auto max-w-7xl px-4 relative">
           <div className="text-center mb-16">
             <p data-animate="fade-down" className="text-xs font-bold tracking-[0.28em] uppercase text-felovy-red/70 mb-3">Industries & Domains</p>
@@ -749,6 +766,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      </LazyWhenVisible>
 
       {/* ── TECH STACKS CAROUSEL — two rows scrolling opposite directions ── */}
       <section className="py-16 bg-gray-950 relative overflow-hidden">
@@ -768,7 +786,7 @@ export default function HomePage() {
 
       {/* ── 6. FEATURED JOBS ── */}
       <section id="jobs" className="py-24 bg-gray-50/70 border-y border-gray-100 relative overflow-hidden">
-        <AnimatedSectionBg variant="grid" opacity={0.04} color="#e11d48" secondary="#6366f1" />
+        <LazyAnimatedSectionBg variant="grid" opacity={0.04} color="#e11d48" secondary="#6366f1" />
         {/* SVG diagonal grid */}
         <svg className="absolute inset-0 w-full h-full opacity-[0.04] pointer-events-none" xmlns="http://www.w3.org/2000/svg">
           <defs><pattern id="diag" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -829,8 +847,9 @@ export default function HomePage() {
       </section>
 
       {/* ── 8. DEVELOPER COMMUNITY — infinite carousel ── */}
+      <LazyWhenVisible minHeight="420px">
       <section className="py-20 bg-gray-50/60 border-y border-gray-100 relative overflow-hidden">
-        <AnimatedSectionBg variant="particles" opacity={0.04} color="#e11d48" secondary="#a855f7" />
+        <LazyAnimatedSectionBg variant="particles" opacity={0.04} color="#e11d48" secondary="#a855f7" />
         <div className="container mx-auto max-w-7xl px-4 relative">
           <div className="text-center mb-12">
             <p data-animate="fade-down" className="text-xs font-bold tracking-[0.28em] uppercase text-felovy-red/70 mb-3">Global Community</p>
@@ -853,10 +872,11 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+      </LazyWhenVisible>
 
       {/* ── 9. DEVELOPER / EMPLOYER — unified gradient cards ── */}
       <section id="about" className="py-20 relative overflow-hidden split-section">
-        <AnimatedSectionBg variant="rings" opacity={0.04} color="#e11d48" secondary="#a855f7" />
+        <LazyAnimatedSectionBg variant="rings" opacity={0.04} color="#e11d48" secondary="#a855f7" />
         <div className="container mx-auto max-w-7xl px-4 relative">
           <div className="text-center mb-14">
             <p data-animate="fade-down" className="text-xs font-bold tracking-[0.28em] uppercase text-felovy-red/70 mb-3">Built for everyone</p>
@@ -990,7 +1010,7 @@ export default function HomePage() {
 
       {/* ── 10. TESTIMONIALS — tabbed dev / client with profile photos ── */}
       <section className="py-28 bg-gray-50/60 border-y border-gray-100 relative overflow-hidden">
-        <AnimatedSectionBg variant="spiral" opacity={0.04} color="#e11d48" secondary="#a855f7" />
+        <LazyAnimatedSectionBg variant="spiral" opacity={0.04} color="#e11d48" secondary="#a855f7" />
         <div className="container mx-auto max-w-7xl px-4 relative">
           <div className="text-center mb-6">
             <p data-animate="fade-down" className="text-xs font-bold tracking-[0.28em] uppercase text-felovy-red/70 mb-3">Real Voices</p>
@@ -1008,7 +1028,7 @@ export default function HomePage() {
 
       {/* ── 16. FAQ ── */}
       <section id="faq" className="py-28 bg-white relative overflow-hidden">
-        <AnimatedSectionBg variant="bubbles" opacity={0.04} color="#e11d48" secondary="#a855f7" />
+        <LazyAnimatedSectionBg variant="bubbles" opacity={0.04} color="#e11d48" secondary="#a855f7" />
         {/* SVG zigzag lines top + bottom */}
         <svg className="absolute top-0 left-0 right-0 w-full opacity-[0.05] pointer-events-none" viewBox="0 0 1440 20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
           <polyline points="0,20 30,0 60,20 90,0 120,20 150,0 180,20 210,0 240,20 270,0 300,20 330,0 360,20 390,0 420,20 450,0 480,20 510,0 540,20 570,0 600,20 630,0 660,20 690,0 720,20 750,0 780,20 810,0 840,20 870,0 900,20 930,0 960,20 990,0 1020,20 1050,0 1080,20 1110,0 1140,20 1170,0 1200,20 1230,0 1260,20 1290,0 1320,20 1350,0 1380,20 1410,0 1440,20" fill="none" stroke="#a855f7" strokeWidth="1.5"/>

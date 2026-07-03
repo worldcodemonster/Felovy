@@ -136,8 +136,13 @@ export function FloatingAIGuide() {
         <div className="chat-slide-up w-[340px] bg-white rounded-2xl shadow-2xl shadow-gray-900/20 border border-gray-100 flex flex-col overflow-hidden" style={{ maxHeight: 490 }}>
           {/* Header */}
           <div className="flex items-center gap-3 p-3.5 bg-gradient-to-r from-felovy-red to-felovy-purple">
-            <div className="rounded-xl overflow-hidden shrink-0 bg-white/10" style={{ width: 34, height: 60 }}>
-              <Fantasy3DCharacter state={charState} width={34} height={60} />
+            <div className="relative shrink-0 rounded-2xl p-[2px] bg-gradient-to-br from-white/70 via-felovy-pink/80 to-violet-300/70 shadow-lg shadow-rose-900/20">
+              <div className="rounded-[14px] overflow-hidden bg-gradient-to-b from-rose-50 to-white" style={{ width: 40, height: 56 }}>
+                <Fantasy3DCharacter state={charState} width={40} height={56} variant="mini" />
+              </div>
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded-full bg-white/95 text-[8px] font-bold text-felovy-red shadow-sm">
+                LIVE
+              </span>
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-bold text-white text-sm">Feli — AI Guide</p>
@@ -233,19 +238,26 @@ export function FloatingAIGuide() {
         </div>
       )}
 
-      {/* Floating 3D character — portrait card showing full body */}
+      {/* Floating 3D face avatar — holographic portrait */}
       <div className="flex flex-col items-center">
         {!open && (
-          <div className="relative" style={{ width: 90, height: 162 }}>
-            <div className="absolute inset-x-2 bottom-0 h-16 rounded-full bg-felovy-red/10 blur-xl pointer-events-none" />
-            <button
-              onClick={() => setOpen(true)}
-              className="relative w-full h-full flex items-center justify-center focus:outline-none"
-              style={{ background: 'none', border: 'none', padding: 0 }}
-              aria-label="Open AI Guide"
-            >
-              <Fantasy3DCharacter state={charState} width={90} height={162} />
-            </button>
+          <div className="relative group" style={{ width: 104, height: 132 }}>
+            <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-felovy-red/25 via-felovy-pink/15 to-violet-400/25 blur-xl scale-95 group-hover:scale-105 transition-transform duration-500" />
+            <div className="absolute inset-[6px] rounded-[1.6rem] border border-white/60 shadow-[0_0_0_1px_rgba(225,29,72,0.15)]" />
+            <div className="absolute inset-[10px] rounded-[1.35rem] bg-gradient-to-b from-white via-rose-50/80 to-violet-50/60 overflow-hidden shadow-2xl shadow-rose-300/30">
+              <button
+                onClick={() => setOpen(true)}
+                className="relative w-full h-full flex items-center justify-center focus:outline-none"
+                style={{ background: 'none', border: 'none', padding: 0 }}
+                aria-label="Open AI Guide"
+              >
+                <Fantasy3DCharacter state={charState} width={104} height={132} variant="portrait" />
+              </button>
+            </div>
+            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/95 border border-rose-100 shadow-md">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-bold text-gray-700 tracking-wide">Ask Feli</span>
+            </div>
           </div>
         )}
 

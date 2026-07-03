@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import serverless from 'serverless-http';
 import app from '@/server/app';
 
 export const config = {
@@ -9,8 +8,10 @@ export const config = {
   },
 };
 
-const handler = serverless(app, { binary: true });
-
-export default function api(req: NextApiRequest, res: NextApiResponse) {
-  return handler(req, res);
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  return new Promise<void>((resolve, reject) => {
+    res.on('finish', resolve);
+    res.on('error', reject);
+    app(req, res);
+  });
 }
