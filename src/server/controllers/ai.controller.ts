@@ -37,7 +37,7 @@ export async function chatWithFeli(req: Request, res: Response) {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': siteUrl,
-        'X-Title': 'Felovy — Feli AI Guide',
+        'X-Title': 'Felovy - Feli AI Guide',
       },
       body: JSON.stringify({
         model,
