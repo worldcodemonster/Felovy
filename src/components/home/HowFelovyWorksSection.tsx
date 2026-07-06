@@ -93,11 +93,11 @@ function StepCard({
       data-animate="fade-up"
       data-delay={String(index * 70)}
       className={cn(
-        'group flex flex-col min-w-0 transition-transform duration-300 hover:-translate-y-0.5',
+        'group flex flex-col min-w-0 rounded-xl bg-white transition-transform duration-300 hover:-translate-y-0.5',
         className,
       )}
     >
-      <div className="relative">
+      <div className="relative overflow-hidden rounded-lg bg-white">
         <HomeStorysetIllustration
           src={step.illustration}
           sizes={HOME_IMAGE_SIZES.workflowTile}
