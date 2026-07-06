@@ -490,7 +490,7 @@ function MapCanvas({ fillHeight = false }: { fillHeight?: boolean }) {
       width={800}
       height={365}
       projectionConfig={fillHeight
-        ? { scale: 140, center: [5, 9] }
+        ? { scale: 140, center: [5, 11] }
         : { scale: 147, center: [0, 5] }}
       className={fillHeight ? 'pointer-events-none select-none' : undefined}
       style={fillHeight

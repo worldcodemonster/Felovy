@@ -17,6 +17,23 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client', 'bcryptjs'],
   },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      // Browsers often request /favicon.ico by default
+      { source: '/favicon.ico', destination: '/logo.png' },
+    ];
+  },
 };
 
 module.exports = nextConfig;

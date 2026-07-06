@@ -11,6 +11,23 @@ import { StorysetAttribution } from '@/components/shared/StorysetAttribution';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DEVELOPER_CAROUSEL } from '@/lib/developer-carousel';
+import { buildPageMetadata } from '@/lib/seo';
+import { HomeStructuredData } from '@/components/seo/HomeStructuredData';
+
+export const metadata = buildPageMetadata({
+  title: 'Remote Software Jobs & Verified Developer Hiring',
+  description:
+    'Felovy — For Every Life, Our Value Yields. Hire verified remote developers or find high-paying software jobs worldwide. AI, web, mobile, cloud & 12 service domains.',
+  path: '/',
+  keywords: [
+    'Felovy',
+    'software outsourcing platform',
+    'remote developer jobs',
+    'hire verified developers',
+    'global software talent',
+    'remote hiring platform',
+  ],
+});
 
 const ScrollReveal = dynamic(
   () => import('@/components/home/ScrollReveal').then((m) => ({ default: m.ScrollReveal })),
@@ -42,13 +59,17 @@ const TestimonialsSection = dynamic(
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-white overflow-x-hidden">
+    <>
+      <HomeStructuredData />
+      <div className="min-h-screen bg-white overflow-x-hidden">
       <ScrollReveal />
       <Navbar />
 
+      <main id="main-content">
+
       <section id="hero" className="relative min-h-[92vh] flex flex-col justify-center overflow-hidden -mt-14 pt-14 pointer-events-none bg-white">
         <div className="absolute inset-0 z-0 pointer-events-none select-none" aria-hidden>
-          <div className="absolute inset-x-0 top-0 bottom-0 overflow-hidden opacity-90 -translate-y-2 md:-translate-y-5">
+          <div className="absolute inset-x-0 top-0 bottom-0 overflow-hidden opacity-90 translate-y-0.5 md:translate-y-1.5">
             <WorldMap mode="hero" />
           </div>
         </div>
@@ -121,6 +142,7 @@ export default function HomePage() {
       </LazyWhenVisible>
 
       <FAQSection />
+      </main>
 
       <footer className="bg-white border-t border-gray-200 text-gray-500">
         <div className="container mx-auto max-w-7xl px-4 pt-12 pb-8">
@@ -201,5 +223,6 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
+    </>
   );
 }

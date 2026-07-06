@@ -4,15 +4,13 @@ export interface CompanyLogo {
   src: string;
 }
 
-/** 95 companies — colored SVGs in /public/companies/ (npm run company-logos:fetch) */
+/** 92 companies — colored SVGs in /public/companies/ (npm run company-logos:fetch) */
 export const COMPANY_LOGOS: CompanyLogo[] = [
   { id: 'google', name: 'Google', src: '/companies/google.svg' },
   { id: 'microsoft', name: 'Microsoft', src: '/companies/microsoft.svg' },
   { id: 'amazon', name: 'Amazon', src: '/companies/amazon.svg' },
   { id: 'apple', name: 'Apple', src: '/companies/apple.svg' },
   { id: 'meta', name: 'Meta', src: '/companies/meta.svg' },
-  { id: 'netflix', name: 'Netflix', src: '/companies/netflix.svg' },
-  { id: 'nvidia', name: 'NVIDIA', src: '/companies/nvidia.svg' },
   { id: 'intel', name: 'Intel', src: '/companies/intel.svg' },
   { id: 'ibm', name: 'IBM', src: '/companies/ibm.svg' },
   { id: 'oracle', name: 'Oracle', src: '/companies/oracle.svg' },
@@ -79,7 +77,6 @@ export const COMPANY_LOGOS: CompanyLogo[] = [
   { id: 'indeed', name: 'Indeed', src: '/companies/indeed.svg' },
   { id: 'glassdoor', name: 'Glassdoor', src: '/companies/glassdoor.svg' },
   { id: 'monster', name: 'Monster', src: '/companies/monster.svg' },
-  { id: 'stackoverflow', name: 'Stack Overflow', src: '/companies/stackoverflow.svg' },
   { id: 'wellfound', name: 'Wellfound', src: '/companies/wellfound.svg' },
   { id: 'angellist', name: 'AngelList', src: '/companies/angellist.svg' },
   { id: 'upwork', name: 'Upwork', src: '/companies/upwork.svg' },

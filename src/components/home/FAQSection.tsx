@@ -3,39 +3,7 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const FAQS = [
-  {
-    question: 'What is Felovy?',
-    answer:
-      'Felovy is a global software outsourcing platform that connects verified developers with companies looking to hire remote talent. Developers find high-paying jobs; employers access a vetted global bench.',
-  },
-  {
-    question: 'How do developers get verified?',
-    answer:
-      'Developers complete their profile, submit portfolio and skills, and pass our verification review. Verified badges help you stand out to employers and unlock premium job opportunities.',
-  },
-  {
-    question: 'How does hiring work for employers?',
-    answer:
-      'Create an employer account, post a job or browse developer profiles, and connect directly with candidates. Felovy handles discovery and trust. You choose who to hire.',
-  },
-  {
-    question: 'Is Felovy free to join?',
-    answer:
-      'Yes. Creating an account is free for both developers and employers. Developers can browse and apply to jobs at no cost. Employers pay when they post jobs or engage talent, depending on their plan.',
-  },
-  {
-    question: 'Can I work remotely from any country?',
-    answer:
-      'Yes. Felovy is built for global remote work. Developers and employers collaborate across time zones. Our platform spans 50+ countries and growing.',
-  },
-  {
-    question: 'How are payments handled?',
-    answer:
-      'Payment terms are agreed between developers and employers. Felovy provides the platform for discovery, hiring, and project management. Billing details are set per contract or job posting.',
-  },
-];
+import { FELOVY_FAQS } from '@/lib/faqs';
 
 export function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -53,7 +21,7 @@ export function FAQSection() {
         </div>
 
         <div className="space-y-3">
-          {FAQS.map(({ question, answer }, i) => {
+          {FELOVY_FAQS.map(({ question, answer }, i) => {
             const isOpen = openIndex === i;
             return (
               <div

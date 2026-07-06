@@ -8,6 +8,7 @@ import jobRoutes from './routes/job.routes';
 import applicationRoutes from './routes/application.routes';
 import messageRoutes from './routes/message.routes';
 import ownerRoutes from './routes/owner.routes';
+import aiRoutes from './routes/ai.routes';
 
 process.on('unhandledRejection', (reason: unknown) => {
   console.error('[Felovy] Unhandled Rejection (server stays up):', reason);
@@ -32,6 +33,7 @@ app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/owner', ownerRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'Felovy API' }));
 
