@@ -25,6 +25,7 @@ export function HomeStorysetIllustration({
           quality={HOME_IMAGE_QUALITY.illustration}
           className="object-contain"
           sizes={sizes}
+          unoptimized={src.endsWith('.svg')}
           aria-hidden
         />
       </div>

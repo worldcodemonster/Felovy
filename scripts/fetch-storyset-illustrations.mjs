@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { recolorStorysetSvg } from './storyset-recolor.mjs';
+import { postProcessStorysetSvg } from './storyset-recolor.mjs';
 
 const STYLE = 'rafiki';
 const ROOT = path.join(process.cwd(), 'public', 'illustrations', 'storyset');
@@ -70,7 +70,7 @@ for (const [fileKey, slugs] of Object.entries(MAP)) {
   const hit = await resolve(slugs);
   const res = await fetch(hit.url, { headers: { 'User-Agent': 'Felovy/1.0' } });
   if (!res.ok) throw new Error(`Download failed ${fileKey}: ${res.status}`);
-  const svg = recolorStorysetSvg(await res.text());
+  const svg = postProcessStorysetSvg(await res.text());
   const dest = path.join(ROOT, `${fileKey}.svg`);
   await mkdir(path.dirname(dest), { recursive: true });
   await writeFile(dest, svg, 'utf8');

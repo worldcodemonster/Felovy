@@ -17,6 +17,7 @@
     "prisma:seed": "ts-node prisma/seed.ts",
     "storyset:fetch": "node scripts/fetch-storyset-illustrations.mjs",
     "storyset:recolor": "node scripts/storyset-recolor.mjs",
+    "storyset:strip-background": "node scripts/storyset-strip-background.mjs",
     "company-logos:fetch": "node scripts/fetch-company-logos.mjs",
     "client-photos:fetch": "node scripts/fetch-client-photos.mjs",
     "client-testimonials:setup": "node scripts/setup-client-testimonials.mjs",
