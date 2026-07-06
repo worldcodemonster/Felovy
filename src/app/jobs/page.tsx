@@ -8,9 +8,11 @@ import { Navbar } from '@/components/shared/Navbar';
 import { JobCard } from '@/components/jobs/JobCard';
 import { api } from '@/lib/api';
 import { Job, Developer, Application } from '@/types';
-import { Search, Loader2, Inbox, Lock, Sparkles, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Loader2, Lock, Sparkles, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { Illustration } from '@/components/shared/Illustration';
 import { cn } from '@/lib/utils';
 
 const PREVIEW_COUNT = 8;
@@ -196,17 +198,11 @@ export default function JobsPage() {
             <Loader2 className="h-8 w-8 animate-spin text-gray-300" />
           </div>
         ) : allJobs.length === 0 ? (
-          <div className="text-center py-32">
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 mb-4">
-              <Inbox className="h-7 w-7 text-gray-400" />
-            </div>
-            <p className="text-base font-semibold text-gray-600">
-              {savedOnly ? 'No saved jobs yet' : 'No roles found'}
-            </p>
-            <p className="text-sm text-gray-400 mt-1">
-              {savedOnly ? "Save jobs you like and they'll appear here" : 'Try a different search'}
-            </p>
-          </div>
+          <EmptyState
+            illustration="empty-jobs"
+            title={savedOnly ? 'No saved jobs yet' : 'No roles found'}
+            description={savedOnly ? "Save jobs you like and they'll appear here" : 'Try a different search or filter'}
+          />
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -226,7 +222,8 @@ export default function JobsPage() {
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center z-20">
                   <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 px-8 py-10 text-center max-w-sm w-full mx-4">
-                    <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-900 mb-4">
+                    <Illustration name="auth-developer" className="w-36 h-auto mx-auto mb-4" width={144} height={108} />
+                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-900 mb-3">
                       <Lock className="h-6 w-6 text-white" />
                     </div>
                     <Badge variant="secondary" className="mb-3">

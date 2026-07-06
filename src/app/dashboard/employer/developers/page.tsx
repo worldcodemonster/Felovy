@@ -8,6 +8,7 @@ import { api } from '@/lib/api';
 import { Developer } from '@/types';
 import { UserAvatar, SkillChip } from '@/app/dashboard/owner/_shared';
 import { cn } from '@/lib/utils';
+import { EmptyState } from '@/components/shared/EmptyState';
 import {
   Search, Users, MapPin, Loader2, ExternalLink,
   Check, ChevronLeft, ChevronRight,
@@ -204,7 +205,7 @@ export default function EmployerDevelopersPage() {
             />
           </div>
           <span className="text-sm text-gray-400 shrink-0">
-            {isLoading ? '—' : `${total} developer${total !== 1 ? 's' : ''}`}
+            {isLoading ? '-' : `${total} developer${total !== 1 ? 's' : ''}`}
           </span>
         </div>
 
@@ -214,15 +215,11 @@ export default function EmployerDevelopersPage() {
             {Array.from({ length: LIMIT }).map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : devs.length === 0 ? (
-          <div className="text-center py-28">
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 mb-4">
-              <Users className="h-7 w-7 text-gray-400" />
-            </div>
-            <p className="text-base font-semibold text-gray-600">No developers found</p>
-            {search && (
-              <p className="text-sm text-gray-400 mt-1">Try a different search term</p>
-            )}
-          </div>
+          <EmptyState
+            illustration="empty-developers"
+            title="No developers found"
+            description={search ? 'Try a different search term' : 'Adjust your filters to see more results'}
+          />
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">

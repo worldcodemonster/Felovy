@@ -602,7 +602,7 @@ function ProfilePageInner() {
                             className="mx-auto rounded-lg object-contain max-h-60 w-auto"
                           />
                           <p className="text-xs text-gray-500">
-                            {idPreview ? 'New file selected — click Submit to save' : '✓ ID uploaded. Click to replace.'}
+                            {idPreview ? 'New file selected. Click Submit to save' : '✓ ID uploaded. Click to replace.'}
                           </p>
                         </div>
                       ) : (

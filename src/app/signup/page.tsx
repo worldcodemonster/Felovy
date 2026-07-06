@@ -3,7 +3,8 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
+import { AuthLayout } from '@/components/auth/AuthLayout';
+import { Illustration } from '@/components/shared/Illustration';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -14,7 +15,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { toast } from '@/components/ui/toaster';
 import { useAuthStore } from '@/store/auth.store';
 import { api } from '@/lib/api';
-import { Eye, EyeOff, Loader2, CheckCircle2, Code2, Building2, Mail } from 'lucide-react';
+import { Eye, EyeOff, Loader2, CheckCircle2, Code2, Building2 } from 'lucide-react';
 
 const step1Schema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -107,21 +108,28 @@ function SignUpContent() {
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
-      >
-        <div className="text-center mb-8">
-          <Link href="/">
-            <Image src="/logo.png" alt="Felovy" width={56} height={56} className="mx-auto mb-4" />
-          </Link>
-          <h1 className="text-3xl font-bold gradient-text">Create account</h1>
-          <p className="text-gray-500 text-sm mt-1">Join the Felovy community</p>
-        </div>
+  const illustration =
+    step === 'success' ? 'celebrate' :
+    step === 'otp' ? 'mail-sent' :
+    role === 'DEVELOPER' ? 'auth-developer' : 'auth-employer';
 
+  const title =
+    step === 'success' ? 'You\'re all set!' :
+    step === 'otp' ? 'Almost there' :
+    'Create account';
+
+  const subtitle =
+    step === 'success' ? 'Redirecting to your dashboard...' :
+    step === 'otp' ? 'Verify your email to continue' :
+    'Join the Felovy community';
+
+  return (
+    <AuthLayout illustration={illustration} title={title} subtitle={subtitle}>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
         <Card className="shadow-xl border-felovy-light/30">
           <CardContent className="p-6">
             <AnimatePresence mode="wait">
@@ -181,10 +189,10 @@ function SignUpContent() {
 
               {step === 'otp' && (
                 <motion.div key="otp" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-5">
+                  <div className="text-center lg:hidden">
+                    <Illustration name="mail-sent" className="w-40 h-auto mx-auto mb-4" width={160} height={120} />
+                  </div>
                   <div className="text-center">
-                    <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-felovy-light">
-                      <Mail className="h-7 w-7 text-felovy-red" />
-                    </div>
                     <h2 className="font-semibold text-gray-900 text-lg">Check your email</h2>
                     <p className="text-sm text-gray-500 mt-1">
                       We sent a 6-digit verification code. Enter it below.
@@ -223,8 +231,9 @@ function SignUpContent() {
               )}
 
               {step === 'success' && (
-                <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-6">
-                  <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-4">
+                  <Illustration name="celebrate" className="w-44 h-auto mx-auto mb-4 lg:hidden" width={176} height={132} />
+                  <CheckCircle2 className="h-14 w-14 text-green-500 mx-auto mb-4 hidden lg:block" />
                   <h2 className="text-xl font-bold text-gray-900">Account created!</h2>
                   <p className="text-gray-500 text-sm mt-1">Redirecting to your dashboard...</p>
                 </motion.div>
@@ -233,7 +242,7 @@ function SignUpContent() {
           </CardContent>
         </Card>
       </motion.div>
-    </div>
+    </AuthLayout>
   );
 }
 

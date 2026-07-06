@@ -278,7 +278,7 @@ export default function JobApplicationsPage() {
         <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <h1 className="text-xl font-bold text-gray-900">{job?.title ?? '—'}</h1>
+              <h1 className="text-xl font-bold text-gray-900">{job?.title ?? '-'}</h1>
               <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-gray-500">
                 {job?.locationType && (
                   <span className="flex items-center gap-1">

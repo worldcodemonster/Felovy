@@ -94,7 +94,7 @@ export const listJobs = async (req: Request, res: Response): Promise<void> => {
     res.json({ jobs, total, page: Number(page), limit: Number(limit) });
   } catch (err) {
     console.error('[listJobs]', err);
-    res.status(500).json({ message: 'Could not load jobs — database may be unavailable', jobs: [], total: 0 });
+    res.status(500).json({ message: 'Could not load jobs. Database may be unavailable', jobs: [], total: 0 });
   }
 };
 

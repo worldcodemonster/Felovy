@@ -63,11 +63,11 @@ export function Navbar() {
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-50 w-full border-b border-transparent bg-transparent backdrop-blur-sm">
-        <div className="container mx-auto flex h-20 max-w-7xl items-center justify-between px-4">
+        <div className="container mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Felovy" width={36} height={36} className="rounded-lg" />
-            <span className="text-xl font-bold gradient-text">Felovy</span>
+            <Image src="/logo.png" alt="Felovy" width={30} height={30} className="rounded-lg" />
+            <span className="text-lg font-bold gradient-text">Felovy</span>
           </Link>
 
           {/* Nav links */}
@@ -148,7 +148,7 @@ export function Navbar() {
           </div>
         </div>
       </header>
-      <div className="h-20" />
+      <div className="h-14" />
       <Breadcrumb excludePrefix="/dashboard/owner" />
     </>
   );

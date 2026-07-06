@@ -85,7 +85,7 @@ export default function CredentialsPage() {
         <CardContent className="space-y-4">
           <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
             <Mail className="h-4 w-4 text-gray-400 shrink-0" />
-            <span className="text-sm text-gray-700">{user?.email ?? profile?.user?.email ?? '—'}</span>
+            <span className="text-sm text-gray-700">{user?.email ?? profile?.user?.email ?? '-'}</span>
             <span className="ml-auto text-xs text-gray-400 font-medium">Current email</span>
           </div>
 

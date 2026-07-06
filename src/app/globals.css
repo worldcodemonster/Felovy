@@ -29,7 +29,7 @@
 
 @layer base {
   * { @apply border-border; }
-  html { background: linear-gradient(135deg, #fff8f9 0%, #fefbff 50%, #f7fbff 100%) fixed; min-height: 100%; }
+  html { background: #ffffff fixed; min-height: 100%; }
   body { @apply text-foreground font-sans; background: transparent; min-height: 100%; }
 }
 
@@ -58,12 +58,12 @@
 
 /* Felovy gradient bg */
 .gradient-bg {
-  background: linear-gradient(135deg, #fff1f2 0%, #fdf4ff 50%, #f0f9ff 100%);
+  background: #ffffff;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #fff1f2; }
+::-webkit-scrollbar-track { background: #ffffff; }
 ::-webkit-scrollbar-thumb { background: #fda4af; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #e11d48; }
 
@@ -215,11 +215,116 @@
 }
 .chat-slide-up { animation: chat-slide-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
 
-/* ─── Developer carousel ──────────────────────────────────────────────────────── */
+/* Floating AI guide — anchor bottom-right; no full-screen hit layer */
+#felovy-overlays {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index: 2147483646;
+  pointer-events: none;
+}
+#felovy-overlays > * {
+  pointer-events: auto;
+}
+
+/* ─── Developer & company carousels ─────────────────────────────────────────── */
 
 @keyframes devCarouselScroll {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
+}
+
+@keyframes companyCarouselScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ─── Shared horizontal carousels (services, workplace) ─────────────────────── */
+
+@keyframes testimonialWallUp {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }
+}
+
+@keyframes testimonialWallDown {
+  from { transform: translateY(-50%); }
+  to   { transform: translateY(0); }
+}
+
+.testimonial-wall-column {
+  width: 100%;
+  will-change: transform;
+}
+
+.testimonial-wall-up {
+  animation: testimonialWallUp linear infinite;
+}
+
+.testimonial-wall-down {
+  animation: testimonialWallDown linear infinite;
+}
+
+.testimonial-wall-column:hover {
+  animation-play-state: paused;
+}
+
+@keyframes techStackCellIn {
+  from {
+    opacity: 0;
+    transform: var(--tech-stack-from, translateY(10px));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.tech-stack-cell {
+  opacity: 0;
+  animation: techStackCellIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.tech-stack-fx-up {
+  --tech-stack-from: translateY(14px);
+}
+
+.tech-stack-fx-left {
+  --tech-stack-from: translateX(-16px);
+}
+
+.tech-stack-fx-scale {
+  --tech-stack-from: scale(0.82);
+}
+
+.tech-stack-fx-blur {
+  --tech-stack-from: translateY(8px);
+  filter: none;
+}
+
+.tech-stack-fx-blur .tech-stack-cell {
+  animation-name: techStackCellBlurIn;
+}
+
+@keyframes techStackCellBlurIn {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes servicesCarouselScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.services-carousel-track:hover {
+  animation-play-state: paused;
 }
 
 /* ─── Tech marquee (separate speed) ─────────────────────────────────────────── */
@@ -257,6 +362,34 @@
 }
 .gallery-cell:hover img {
   transform: scale(1.06);
+}
+
+.domain-illust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.domain-illust img {
+  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.domain-bento-cell:hover .domain-illust img {
+  transform: scale(1.03);
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes domain-showcase-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.domain-showcase-enter {
+  animation: domain-showcase-in 0.45s ease-out;
 }
 
 /* ─── Smooth gradient split ──────────────────────────────────────────────────── */

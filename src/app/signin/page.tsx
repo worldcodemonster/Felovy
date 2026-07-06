@@ -3,7 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
+import { AuthLayout } from '@/components/auth/AuthLayout';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -71,21 +71,16 @@ function SignInContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <AuthLayout
+      illustration={role === 'DEVELOPER' ? 'auth-developer' : 'auth-employer'}
+      title="Welcome back"
+      subtitle="Sign in to your Felovy account"
+    >
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        transition={{ duration: 0.4 }}
       >
-        <div className="text-center mb-8">
-          <Link href="/">
-            <Image src="/logo.png" alt="Felovy" width={56} height={56} className="mx-auto mb-4" />
-          </Link>
-          <h1 className="text-3xl font-bold gradient-text">Welcome back</h1>
-          <p className="text-gray-500 text-sm mt-1">Sign in to your Felovy account</p>
-        </div>
-
         <Card className="shadow-xl border-felovy-light/30">
           <CardContent className="p-6 space-y-5">
             {/* Role selector */}
@@ -157,7 +152,7 @@ function SignInContent() {
           </CardContent>
         </Card>
       </motion.div>
-    </div>
+    </AuthLayout>
   );
 }
 

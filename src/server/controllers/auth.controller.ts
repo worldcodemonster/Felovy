@@ -91,7 +91,7 @@ export const initiateSignup = async (req: Request, res: Response): Promise<void>
     res.status(201).json({ message: 'OTP sent to your email', userId: user.id });
   } catch (err) {
     console.error('[initiateSignup]', err);
-    res.status(500).json({ message: 'Server error — check your database connection' });
+    res.status(500).json({ message: 'Server error. Check your database connection' });
   }
 };
 
@@ -125,7 +125,7 @@ export const verifySignupOtp = async (req: Request, res: Response): Promise<void
     });
   } catch (err) {
     console.error('[verifySignupOtp]', err);
-    res.status(500).json({ message: 'Server error — check your database connection' });
+    res.status(500).json({ message: 'Server error. Check your database connection' });
   }
 };
 
@@ -158,7 +158,7 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (err) {
     console.error('[signin]', err);
-    res.status(500).json({ message: 'Server error — check your database connection' });
+    res.status(500).json({ message: 'Server error. Check your database connection' });
   }
 };
 

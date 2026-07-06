@@ -13,6 +13,7 @@ import {
   FilterBar, Pagination,
 } from '@/app/dashboard/owner/_shared';
 import { GenderAvatar } from '@/components/shared/GenderAvatar';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { Users } from 'lucide-react';
 
 // ─── Public developer card ────────────────────────────────────────────────────
@@ -149,10 +150,11 @@ export default function DevelopersPage() {
             <p className="text-sm">Could not load developers. Please try again later.</p>
           </div>
         ) : devs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-gray-400 gap-2">
-            <Users className="h-10 w-10 text-gray-200" />
-            <p className="text-sm">No developers found</p>
-          </div>
+          <EmptyState
+            illustration="empty-developers"
+            title="No developers found"
+            description="Try adjusting your search or filters"
+          />
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">

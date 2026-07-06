@@ -1,0 +1,182 @@
+{
+  "auth-developer": {
+    "slug": "programming",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/programming/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/2522/257-Programming_Artboard-1.svg"
+  },
+  "auth-employer": {
+    "slug": "hiring",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/hiring/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/1544/59-Hiring_Artboard-1.svg"
+  },
+  "mail-sent": {
+    "slug": "email-capture",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/email-capture/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/2283/105-Email-capture_Artboard-1.svg"
+  },
+  "celebrate": {
+    "slug": "celebration",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/celebration/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/1852/141-Celebration_Artboard-1.svg"
+  },
+  "empty-jobs": {
+    "slug": "job-hunt",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/job-hunt/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/1200/13-Job-hunt_Artboard-1.svg"
+  },
+  "empty-applications": {
+    "slug": "resume",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/resume/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/4371/Resume-01.svg"
+  },
+  "empty-developers": {
+    "slug": "team",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/team/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/1667/86-Team_Artboard-1.svg"
+  },
+  "empty-messages": {
+    "slug": "messaging",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/messaging/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/2057/191-Messaging_Artboard-1.svg"
+  },
+  "remote-work": {
+    "slug": "online",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/online/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/2056/192-Online_Artboard-1.svg"
+  },
+  "team-hiring": {
+    "slug": "hiring",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/hiring/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/1544/59-Hiring_Artboard-1.svg"
+  },
+  "workflows/dev-01-verify-email": {
+    "slug": "email-capture",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/email-capture/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/2283/105-Email-capture_Artboard-1.svg"
+  },
+  "workflows/dev-02-complete-profile": {
+    "slug": "resume",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/resume/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/4371/Resume-01.svg"
+  },
+  "workflows/dev-03-get-verified": {
+    "slug": "certification",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/certification/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/36623/Certification_Artboard-1.svg"
+  },
+  "workflows/dev-04-apply-jobs": {
+    "slug": "job-hunt",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/job-hunt/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/1200/13-Job-hunt_Artboard-1.svg"
+  },
+  "workflows/emp-01-company-email": {
+    "slug": "business-deal",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/business-deal/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/2323/240-Business-deal_Artboard-1.svg"
+  },
+  "workflows/emp-02-company-profile": {
+    "slug": "company",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/company/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/15022/Company_Artboard-1.svg"
+  },
+  "workflows/emp-03-post-job": {
+    "slug": "job-offers",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/job-offers/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/34392/Job-Offers_Artboard-1-copy.svg"
+  },
+  "workflows/emp-04-review-applicants": {
+    "slug": "hiring",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/hiring/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/1544/59-Hiring_Artboard-1.svg"
+  },
+  "domains/ai-ml": {
+    "slug": "artificial-intelligence",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/artificial-intelligence/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/1854/143-Artificial-intelligence_Artboard-1.svg"
+  },
+  "domains/data-science": {
+    "slug": "data-analysis",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/data-analysis/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/54834/Data-Analysis_Artboard-1.svg"
+  },
+  "domains/web-dev": {
+    "slug": "programming",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/programming/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/2522/257-Programming_Artboard-1.svg"
+  },
+  "domains/mobile": {
+    "slug": "mobile-development",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/mobile-development/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/36722/Mobile-Development_Artboard-1-copy.svg"
+  },
+  "domains/ar-vr": {
+    "slug": "virtual-reality",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/virtual-reality/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/4293/138-Virtual-reality_Artboard-1.svg"
+  },
+  "domains/cloud-devops": {
+    "slug": "cloud-hosting",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/cloud-hosting/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/1679/98-Cloud-hosting_Artboard-1.svg"
+  },
+  "domains/cybersecurity": {
+    "slug": "security",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/security/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/6449/331-Security_Artboard-1.svg"
+  },
+  "domains/blockchain": {
+    "slug": "bitcoin",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/bitcoin/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/1563/78-Bitcoin_Artboard-1.svg"
+  },
+  "domains/game-dev": {
+    "slug": "gaming",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/gaming/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/13411/156-Gaming_Artboard-1.svg"
+  },
+  "domains/ui-ux": {
+    "slug": "design-tools",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/design-tools/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/4468/design-tools-rafiki_Artboard-1.svg"
+  },
+  "domains/api-integrations": {
+    "slug": "software-integration",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/software-integration/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/50246/Software-Integration_Artboard-1-copy.svg"
+  },
+  "domains/ai-agents": {
+    "slug": "robotics",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/robotics/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/8225/362-Robotics_Artboard-1.svg"
+  }
+}

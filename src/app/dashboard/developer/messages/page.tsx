@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api';
 import { Conversation, Message } from '@/types';
 import { useAuthStore } from '@/store/auth.store';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { Send, Loader2, MessageSquare, ArrowLeft } from 'lucide-react';
 import { timeAgo, cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -57,10 +58,13 @@ export default function DeveloperMessagesPage() {
             <h2 className="font-semibold text-gray-900">Messages</h2>
           </div>
           {!conversations?.length ? (
-            <div className="text-center py-12 text-gray-400 text-sm px-4">
-              <MessageSquare className="h-10 w-10 mx-auto mb-2 opacity-30" />
-              No conversations yet. Apply for jobs and wait for employers to reach out.
-            </div>
+            <EmptyState
+              illustration="empty-messages"
+              title="No conversations yet"
+              description="Apply for jobs and wait for employers to reach out"
+              compact
+              className="py-8"
+            />
           ) : (
             conversations.map(conv => (
               <button

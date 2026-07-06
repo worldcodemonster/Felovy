@@ -2,13 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { X, Send, RotateCcw } from 'lucide-react';
-import dynamic from 'next/dynamic';
-import type { CharacterState } from './Fantasy3DCharacter';
-
-const Fantasy3DCharacter = dynamic(
-  () => import('./Fantasy3DCharacter').then(m => ({ default: m.Fantasy3DCharacter })),
-  { ssr: false }
-);
+import { VirtualAgentOrb, type CharacterState } from './VirtualAgentOrb';
 
 const QUICK = [
   'How does verification work?',
@@ -18,13 +12,8 @@ const QUICK = [
 ];
 
 const SECTION_LABELS: { id: string; label: string; tip: string }[] = [
-  { id: 'hero',     label: 'Welcome',         tip: "Hi! I'm Feli — your Felovy guide ✨" },
-  { id: 'services', label: 'Our Services',     tip: 'Learn about what Felovy offers' },
+  { id: 'hero',     label: 'Welcome',         tip: "Hi! I'm Feli, your Felovy guide ✨" },
   { id: 'domains',  label: 'Domain Expertise', tip: 'Explore all 12 software domains' },
-  { id: 'jobs',     label: 'Featured Jobs',    tip: 'Browse 8,400+ open positions' },
-  { id: 'team',     label: 'About Us',         tip: 'The team behind Felovy' },
-  { id: 'trust',    label: 'Trust & Security', tip: 'How we keep everything safe' },
-  { id: 'faq',      label: 'FAQ',              tip: 'Common questions answered' },
 ];
 
 function aiReply(input: string): string {
@@ -32,13 +21,13 @@ function aiReply(input: string): string {
   if (m.includes('verif'))
     return 'Verification is a 4-step process: government ID scan → live coding challenge → skills assessment → video introduction. Takes 2–3 hours and gives you a Verified badge.';
   if (m.includes('hire') || m.includes('employer') || m.includes('company'))
-    return "Sign up as an employer, complete your company profile, and post your first job. You'll receive matched verified candidates in under 24 hours — no recruiter needed.";
+    return "Sign up as an employer, complete your company profile, and post your first job. You'll receive matched verified candidates in under 24 hours, no recruiter needed.";
   if (m.includes('job') || m.includes('find') || m.includes('apply'))
     return 'Create a developer account, complete verification, and your profile appears to thousands of companies. You can also browse 8,400+ open roles and apply directly.';
   if (m.includes('pay') || m.includes('escrow') || m.includes('money') || m.includes('cost'))
     return 'Payments go through our escrow system. Clients fund milestones upfront; developers receive payment only after milestone approval. Joining and browsing is always free.';
   if (m.includes('domain') || m.includes('industr') || m.includes('ai') || m.includes('web') || m.includes('mobile'))
-    return 'Felovy covers 12 software domains: AI/ML, Data Science, Web Dev, Mobile, Cloud/DevOps, Cybersecurity, Blockchain, Game Dev, UI/UX, AR/VR, APIs, and IoT.';
+    return 'Felovy covers 12 software domains: AI/ML, Data Science, Web Dev, Mobile, Cloud/DevOps, Cybersecurity, Blockchain, Game Dev, UI/UX, AR/VR, QA Testing, and AI Data Labeling.';
   if (m.includes('free') || m.includes('price') || m.includes('pricing'))
     return 'Joining Felovy is completely free for both developers and employers. We charge a small platform fee only when a contract is successfully signed.';
   if (m.includes('global') || m.includes('country') || m.includes('remote'))
@@ -60,7 +49,7 @@ interface Msg { role: 'ai' | 'user'; text: string; }
 export function FloatingAIGuide() {
   const [open, setOpen]           = useState(false);
   const [messages, setMessages]   = useState<Msg[]>([
-    { role: 'ai', text: "Hi! I'm Feli — your Felovy AI guide ✨ Ask me anything about developers, jobs, verification, or how the platform works." },
+    { role: 'ai', text: "Hi! I'm Feli, your Felovy AI guide ✨ Ask me anything about developers, jobs, verification, or how the platform works." },
   ]);
   const [input, setInput]         = useState('');
   const [scrollY, setScrollY]     = useState(0);
@@ -70,6 +59,8 @@ export function FloatingAIGuide() {
   const [charState, setCharState] = useState<CharacterState>('idle');
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLInputElement>(null);
+
+  const toggleOpen = () => setOpen(prev => !prev);
 
   useEffect(() => {
     const onScroll = () => setScrollY(window.scrollY);
@@ -130,22 +121,17 @@ export function FloatingAIGuide() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-2">
+    <div className="fixed bottom-6 right-6 z-[99999] flex flex-col items-end gap-2">
       {/* Chat panel */}
       {open && (
         <div className="chat-slide-up w-[340px] bg-white rounded-2xl shadow-2xl shadow-gray-900/20 border border-gray-100 flex flex-col overflow-hidden" style={{ maxHeight: 490 }}>
           {/* Header */}
           <div className="flex items-center gap-3 p-3.5 bg-gradient-to-r from-felovy-red to-felovy-purple">
-            <div className="relative shrink-0 rounded-2xl p-[2px] bg-gradient-to-br from-white/70 via-felovy-pink/80 to-violet-300/70 shadow-lg shadow-rose-900/20">
-              <div className="rounded-[14px] overflow-hidden bg-gradient-to-b from-rose-50 to-white" style={{ width: 40, height: 56 }}>
-                <Fantasy3DCharacter state={charState} width={40} height={56} variant="mini" />
+            <div className="relative shrink-0 rounded-full overflow-hidden" style={{ width: 32, height: 32 }}>
+                <VirtualAgentOrb state={charState} width={32} height={32} variant="mini" />
               </div>
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded-full bg-white/95 text-[8px] font-bold text-felovy-red shadow-sm">
-                LIVE
-              </span>
-            </div>
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-white text-sm">Feli — AI Guide</p>
+              <p className="font-bold text-white text-sm">Feli, AI Guide</p>
               <p className="text-white/60 text-xs truncate">{currentSection.label}</p>
             </div>
             <div className="flex gap-1">
@@ -177,7 +163,7 @@ export function FloatingAIGuide() {
                 <div className={`max-w-[230px] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed ml-2 ${
                   msg.role === 'user'
                     ? 'bg-gradient-to-br from-felovy-red to-felovy-pink text-white rounded-br-sm'
-                    : 'bg-gray-100 text-gray-800 rounded-bl-sm'
+                    : 'bg-white border border-gray-200 text-gray-800 rounded-bl-sm'
                 }`}>
                   {msg.text}
                 </div>
@@ -186,7 +172,7 @@ export function FloatingAIGuide() {
             {typing && (
               <div className="flex justify-start items-center gap-2">
                 <MiniAvatar state="thinking" />
-                <div className="bg-gray-100 rounded-2xl rounded-bl-sm px-4 py-2.5">
+                <div className="bg-white border border-gray-200 rounded-2xl rounded-bl-sm px-4 py-2.5">
                   <div className="flex gap-1 items-center h-4">
                     <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0ms' }} />
                     <span className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -238,38 +224,18 @@ export function FloatingAIGuide() {
         </div>
       )}
 
-      {/* Floating 3D face avatar — holographic portrait */}
-      <div className="flex flex-col items-center">
-        {!open && (
-          <div className="relative group" style={{ width: 104, height: 132 }}>
-            <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-felovy-red/25 via-felovy-pink/15 to-violet-400/25 blur-xl scale-95 group-hover:scale-105 transition-transform duration-500" />
-            <div className="absolute inset-[6px] rounded-[1.6rem] border border-white/60 shadow-[0_0_0_1px_rgba(225,29,72,0.15)]" />
-            <div className="absolute inset-[10px] rounded-[1.35rem] bg-gradient-to-b from-white via-rose-50/80 to-violet-50/60 overflow-hidden shadow-2xl shadow-rose-300/30">
-              <button
-                onClick={() => setOpen(true)}
-                className="relative w-full h-full flex items-center justify-center focus:outline-none"
-                style={{ background: 'none', border: 'none', padding: 0 }}
-                aria-label="Open AI Guide"
-              >
-                <Fantasy3DCharacter state={charState} width={104} height={132} variant="portrait" />
-              </button>
-            </div>
-            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/95 border border-rose-100 shadow-md">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-bold text-gray-700 tracking-wide">Ask Feli</span>
-            </div>
-          </div>
-        )}
-
-        {open && (
-          <button
-            onClick={() => setOpen(false)}
-            className="h-14 w-14 rounded-full bg-gradient-to-br from-felovy-red to-felovy-purple flex items-center justify-center shadow-xl shadow-rose-300/40 focus:outline-none"
-          >
-            <X className="h-6 w-6 text-white" />
-          </button>
-        )}
-      </div>
+      {/* Floating virtual agent orb */}
+      <button
+        type="button"
+        onClick={toggleOpen}
+        className="group relative flex items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-felovy-red/40 transition-transform hover:scale-105 active:scale-95 cursor-pointer touch-manipulation"
+        style={{ width: 72, height: 72, background: 'transparent', border: 'none', padding: 0 }}
+        aria-label={open ? 'Close AI Guide' : 'Open AI Guide'}
+        aria-expanded={open}
+      >
+        <VirtualAgentOrb state={charState} width={68} height={68} variant="portrait" />
+        <span className="absolute inset-0 z-10 rounded-full" aria-hidden />
+      </button>
     </div>
   );
 }

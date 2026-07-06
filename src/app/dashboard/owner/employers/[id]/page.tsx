@@ -176,7 +176,7 @@ export default function EmployerProfilePage({ params }: { params: { id: string }
         {/* Header below banner */}
         <div className="px-8 pt-0 pb-6">
 
-          {/* Logo row — overlaps banner */}
+          {/* Logo row, overlaps banner */}
           <div className="flex items-end justify-between gap-4 -mt-12 mb-5">
             <div className="relative shrink-0">
               <div className="h-24 w-24 rounded-2xl ring-4 ring-white shadow-[0_4px_24px_rgba(0,0,0,0.18)] overflow-hidden bg-white">

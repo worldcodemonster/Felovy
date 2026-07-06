@@ -7,6 +7,7 @@ interface Props {
   rootMargin?: string;
   minHeight?: string;
   className?: string;
+  id?: string;
 }
 
 export function LazyWhenVisible({
@@ -14,6 +15,7 @@ export function LazyWhenVisible({
   rootMargin = '200px 0px',
   minHeight = '1px',
   className = '',
+  id,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -21,6 +23,10 @@ export function LazyWhenVisible({
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
+
+    if (id && window.location.hash === `#${id}`) {
+      setVisible(true);
+    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -34,10 +40,10 @@ export function LazyWhenVisible({
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [rootMargin]);
+  }, [rootMargin, id]);
 
   return (
-    <div ref={ref} className={className} style={{ minHeight: visible ? undefined : minHeight }}>
+    <div ref={ref} id={id} className={className} style={{ minHeight: visible ? undefined : minHeight }}>
       {visible ? children : null}
     </div>
   );

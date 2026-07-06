@@ -197,7 +197,7 @@ export default function DeveloperPublicProfilePage() {
                           <p className="text-sm text-gray-500 mt-0.5">{w.company}</p>
                         </div>
                         <span className="text-[11px] text-gray-400 bg-gray-50 border border-gray-100 rounded-full px-2.5 py-1 shrink-0 mt-0.5">
-                          {w.startDate} — {w.current ? 'Present' : (w.endDate ?? '')}
+                          {w.startDate} to {w.current ? 'Present' : (w.endDate ?? '')}
                         </span>
                       </div>
                       {w.description && <p className="text-sm text-gray-500 mt-2 leading-relaxed">{w.description}</p>}
@@ -223,7 +223,7 @@ export default function DeveloperPublicProfilePage() {
                           <p className="text-sm text-gray-500 mt-0.5">{e.institution}</p>
                         </div>
                         <span className="text-[11px] text-gray-400 bg-gray-50 border border-gray-100 rounded-full px-2.5 py-1 shrink-0 mt-0.5">
-                          {e.startDate} — {e.current ? 'Present' : (e.endDate ?? '')}
+                          {e.startDate} to {e.current ? 'Present' : (e.endDate ?? '')}
                         </span>
                       </div>
                     </div>

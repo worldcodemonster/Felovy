@@ -129,7 +129,7 @@ export function JobCard({ job, userId, applied }: Props) {
           </div>
           <div className="min-w-0">
             <p className="text-[12px] font-medium text-gray-700 truncate leading-tight">
-              {job.employer?.companyName ?? '—'}
+              {job.employer?.companyName ?? '-'}
             </p>
             {appCount > 0 ? (
               <p className="text-[11px] text-gray-400 flex items-center gap-1 mt-0.5">

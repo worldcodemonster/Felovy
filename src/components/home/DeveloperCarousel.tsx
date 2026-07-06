@@ -1,6 +1,9 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
+import { HOME_IMAGE_QUALITY, HOME_IMAGE_SIZES } from '@/lib/home-image';
 
 interface Person {
   src: string;
@@ -11,67 +14,142 @@ interface Person {
   quote?: string;
 }
 
-export function DeveloperCarousel({ people }: { people: Person[] }) {
-  const track = [...people, ...people];
+const CARD_WIDTH = 170;
+const CARD_HEIGHT = 240;
+
+const CENTER_RADIUS = 0.32;
+const CONTRAST_BOOST = 0.2;
+const BRIGHTNESS_BOOST = 0.06;
+
+function smoothstep(t: number) {
+  return t * t * (3 - 2 * t);
+}
+
+function shufflePeople<T>(items: T[]): T[] {
+  const next = [...items];
+  for (let i = next.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [next[i], next[j]] = [next[j], next[i]];
+  }
+  return next;
+}
+
+export function DeveloperCarousel({
+  people,
+  className,
+}: {
+  people: Person[];
+  className?: string;
+}) {
+  const [shuffledPeople] = useState(() => shufflePeople(people));
+  const track = [...shuffledPeople, ...shuffledPeople];
+  const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let frameId = 0;
+
+    const tick = () => {
+      const container = containerRef.current;
+      const trackEl = trackRef.current;
+      if (!container || !trackEl) {
+        frameId = requestAnimationFrame(tick);
+        return;
+      }
+
+      const { left, width } = container.getBoundingClientRect();
+      const centerX = left + width / 2;
+      const falloff = width * CENTER_RADIUS;
+
+      const cards = trackEl.querySelectorAll<HTMLElement>('[data-carousel-card]');
+      cards.forEach((card) => {
+        const rect = card.getBoundingClientRect();
+        const cardCenter = rect.left + rect.width / 2;
+        const dist = Math.abs(cardCenter - centerX);
+        const raw = Math.max(0, 1 - dist / falloff);
+        const influence = smoothstep(raw);
+
+        const contrast = 1 + influence * CONTRAST_BOOST;
+        const brightness = 1 + influence * BRIGHTNESS_BOOST;
+
+        card.style.zIndex = String(Math.round(influence * 20));
+
+        const visual = card.querySelector<HTMLElement>('[data-carousel-visual]');
+        if (visual) {
+          visual.style.filter = `contrast(${contrast}) brightness(${brightness})`;
+        }
+      });
+
+      frameId = requestAnimationFrame(tick);
+    };
+
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
+  }, []);
 
   return (
-    <div className="relative overflow-hidden">
-      {/* Fade edges */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-28 z-10 bg-gradient-to-r from-gray-50/90 to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-28 z-10 bg-gradient-to-l from-gray-50/90 to-transparent" />
+    <div className={cn('mx-auto w-[97%] px-4', className)}>
+      <div ref={containerRef} className="relative overflow-hidden py-8 md:py-10">
+      <div
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-white to-transparent sm:w-12"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-white to-transparent sm:w-12"
+        aria-hidden
+      />
 
       <div
-        className="flex items-start gap-4 py-8"
-        style={{ width: 'max-content', animation: 'devCarouselScroll 90s linear infinite' }}
-        onMouseEnter={e => ((e.currentTarget as HTMLDivElement).style.animationPlayState = 'paused')}
-        onMouseLeave={e => ((e.currentTarget as HTMLDivElement).style.animationPlayState = 'running')}
+        ref={trackRef}
+        className="flex items-start gap-3 md:gap-4 will-change-transform"
+        style={{ width: 'max-content', animation: 'devCarouselScroll 100s linear infinite' }}
       >
         {track.map((person, i) => {
-          const shift = i % 2 === 0 ? 'mt-0' : 'mt-12';
+          const shift = i % 2 === 0 ? 'mt-0' : 'mt-8 md:mt-10';
           return (
-            <div
-              key={i}
-              className={`group relative flex-shrink-0 rounded-2xl overflow-hidden cursor-default transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl ${shift}`}
-              style={{ width: 190, height: 265 }}
+            <article
+              key={`${person.name}-${i}`}
+              data-carousel-card
+              className={cn(
+                'relative flex-shrink-0 rounded-xl overflow-hidden cursor-default shadow-md shadow-gray-200/80',
+                shift,
+              )}
+              style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}
             >
-              {/* Photo */}
-              <Image
-                src={person.src}
-                alt={person.name}
-                fill
-                className="object-cover object-top transition-transform duration-700 group-hover:scale-110"
-              />
+              <div
+                data-carousel-visual
+                className="absolute inset-0"
+                style={{ willChange: 'filter' }}
+              >
+                <Image
+                  src={person.src}
+                  alt={person.name}
+                  fill
+                  quality={HOME_IMAGE_QUALITY.card}
+                  className="object-cover object-top"
+                  sizes={HOME_IMAGE_SIZES.developerCard}
+                />
 
-              {/* Always-on dark gradient at bottom */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
+                <div
+                  className={cn(
+                    'absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t opacity-90',
+                    person.grad,
+                    'to-transparent',
+                  )}
+                />
 
-              {/* Colored tint that intensifies on hover */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${person.grad} opacity-10 group-hover:opacity-35 transition-opacity duration-500`} />
-
-              {/* Shimmer sweep on hover */}
-              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
-
-              {/* Info — slides up on hover */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
-                <p className="font-bold text-white text-sm leading-tight">{person.name}</p>
-                <p className="text-white/70 text-[11px] mt-0.5">{person.role}, {person.country}</p>
-
-                {/* Animated underline */}
-                <div className={`mt-2 h-0.5 w-0 group-hover:w-full bg-gradient-to-r ${person.grad} transition-all duration-500 rounded-full`} />
+                <div className="absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black/50 via-black/15 to-transparent" />
               </div>
 
-              {/* Verified badge */}
-              <div className="absolute top-3 right-3 h-6 w-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg scale-0 group-hover:scale-100 transition-transform duration-300 delay-100">
-                <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
+              <div className="absolute bottom-0 left-0 right-0 p-3 z-10">
+                <p className="font-bold text-white text-lg md:text-xl leading-tight">{person.name}</p>
+                <p className="text-white text-sm md:text-base mt-0.5 font-semibold">{person.role}</p>
+                <p className="text-white/65 text-xs mt-0.5">{person.country}</p>
               </div>
-
-              {/* Glow ring on hover */}
-              <div className={`absolute inset-0 rounded-2xl ring-0 group-hover:ring-2 ring-white/20 transition-all duration-300`} />
-            </div>
+            </article>
           );
         })}
+      </div>
       </div>
     </div>
   );

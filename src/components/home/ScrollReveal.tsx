@@ -6,6 +6,8 @@ export function ScrollReveal() {
   useEffect(() => {
     document.documentElement.classList.add('js-reveal');
 
+    const observed = new WeakSet<Element>();
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -15,20 +17,26 @@ export function ScrollReveal() {
           }
         });
       },
-      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' },
     );
 
-    const observe = () => {
+    const observeNew = () => {
       document.querySelectorAll('[data-animate]').forEach((el) => {
+        if (observed.has(el)) return;
+        observed.add(el);
         observer.observe(el);
       });
     };
 
-    observe();
-    const timer = setTimeout(observe, 300);
+    observeNew();
+    const timer = setTimeout(observeNew, 300);
+
+    const mutation = new MutationObserver(observeNew);
+    mutation.observe(document.body, { childList: true, subtree: true });
 
     return () => {
       clearTimeout(timer);
+      mutation.disconnect();
       observer.disconnect();
     };
   }, []);

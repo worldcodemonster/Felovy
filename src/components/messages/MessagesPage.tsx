@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
 import { Conversation, Message, DeveloperSearchResult } from '@/types';
 import { useAuthStore } from '@/store/auth.store';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { Send, Loader2, MessageSquare, ArrowLeft, Search, X } from 'lucide-react';
 import { timeAgo, cn } from '@/lib/utils';
 
@@ -168,11 +169,13 @@ export function MessagesPage({ role }: Props) {
             ) : showSearch && searchQ.trim().length < 2 ? (
               <p className="text-center py-8 text-xs text-gray-400">Type at least 2 characters</p>
             ) : !conversations?.length ? (
-              <div className="text-center py-12 text-gray-400 text-sm px-4">
-                <MessageSquare className="h-10 w-10 mx-auto mb-2 opacity-30" />
-                <p>No conversations yet.</p>
-                <p className="text-xs mt-1">Search for a developer to start chatting.</p>
-              </div>
+              <EmptyState
+                illustration="empty-messages"
+                title="No conversations yet"
+                description="Search for a developer to start chatting"
+                compact
+                className="py-8"
+              />
             ) : (
               conversations.map(conv => (
                 <button

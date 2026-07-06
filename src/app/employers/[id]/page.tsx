@@ -182,7 +182,7 @@ export default function EmployerPublicProfilePage({ params }: { params: Promise<
             )}
           </div>
 
-          {/* Sidebar — contact */}
+          {/* Sidebar, contact */}
           <div className="space-y-4">
             {(employer.contactName || employer.contactPhotoUrl) && (
               <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">

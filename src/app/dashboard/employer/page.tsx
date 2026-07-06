@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuthStore } from '@/store/auth.store';
 import { api } from '@/lib/api';
 import { Employer, Job } from '@/types';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { Plus, Briefcase, Users, MessageSquare, Settings, Loader2, AlertCircle, CheckCircle, Search } from 'lucide-react';
 
 const jobStatusColors: Record<string, string> = {
@@ -102,10 +103,12 @@ export default function EmployerDashboard() {
               </CardHeader>
               <CardContent>
                 {!jobs?.length ? (
-                  <div className="text-center py-8 text-gray-400">
-                    <Briefcase className="h-10 w-10 mx-auto mb-2 opacity-30" />
-                    <p className="text-sm">No jobs posted yet</p>
-                  </div>
+                  <EmptyState
+                    illustration="empty-jobs"
+                    title="No jobs posted yet"
+                    description="Post your first role to start receiving applications"
+                    compact
+                  />
                 ) : (
                   <div className="space-y-3">
                     {jobs.map(job => (

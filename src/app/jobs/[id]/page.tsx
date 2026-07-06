@@ -96,7 +96,7 @@ export default function JobDetailPage() {
         {/* ── Company identity card ────────────────────────────────── */}
         <div className="bg-white rounded-xl border border-gray-100 mb-3 overflow-hidden">
 
-          {/* Banner — contained within the card */}
+          {/* Banner, contained within the card */}
           <div className="h-40 w-full bg-gradient-to-r from-slate-300 to-slate-200">
             {job.employer?.companyBrandUrl && (
               <img src={job.employer.companyBrandUrl} alt="" className="w-full h-full object-cover" />

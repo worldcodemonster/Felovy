@@ -1,0 +1,50 @@
+{
+  "dev-01-verify-email": {
+    "slug": "email-capture",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/email-capture/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/2283/105-Email-capture_Artboard-1.svg"
+  },
+  "dev-02-complete-profile": {
+    "slug": "resume",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/resume/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/4371/Resume-01.svg"
+  },
+  "dev-03-get-verified": {
+    "slug": "certification",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/certification/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/36623/Certification_Artboard-1.svg"
+  },
+  "dev-04-apply-jobs": {
+    "slug": "job-hunt",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/job-hunt/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/1200/13-Job-hunt_Artboard-1.svg"
+  },
+  "emp-01-company-email": {
+    "slug": "business-deal",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/business-deal/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/2323/240-Business-deal_Artboard-1.svg"
+  },
+  "emp-02-company-profile": {
+    "slug": "company",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/company/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/15022/Company_Artboard-1.svg"
+  },
+  "emp-03-post-job": {
+    "slug": "job-offers",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/job-offers/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/34392/Job-Offers_Artboard-1-copy.svg"
+  },
+  "emp-04-review-applicants": {
+    "slug": "hiring",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/hiring/rafiki",
+    "url": "https://stories.freepiklabs.com/storage/1544/59-Hiring_Artboard-1.svg"
+  }
+}

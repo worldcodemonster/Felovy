@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+  <ellipse cx="400" cy="520" rx="280" ry="24" fill="#e2e8f0"/>
+  <rect x="180" y="380" width="440" height="12" rx="6" fill="#cbd5e1"/>
+  <rect x="480" y="300" width="120" height="80" rx="8" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="2"/>
+  <circle cx="520" cy="330" r="18" fill="#fcd9b6"/>
+  <rect x="505" y="352" width="30" height="20" rx="4" fill="#a78bfa"/>
+  <circle cx="560" cy="330" r="18" fill="#fcd9b6"/>
+  <rect x="545" y="352" width="30" height="20" rx="4" fill="#38bdf8"/>
+  <circle cx="600" cy="330" r="18" fill="#fcd9b6"/>
+  <rect x="585" y="352" width="30" height="20" rx="4" fill="#34d399"/>
+  <circle cx="300" cy="190" r="54" fill="#fcd9b6"/>
+  <path d="M246 162c10-32 42-54 78-50 36 4 62 32 58 64-4 32-32 56-64 54-32-2-58-24-72-68z" fill="#1e293b"/>
+  <path d="M246 190c-8 20-4 42 10 58 14 16 34 26 54 26s40-10 54-26c14-16 18-38 10-58" fill="#fcd9b6"/>
+  <path d="M196 248c-10 48 6 100 40 134 34 34 82 52 130 52h8c48 0 96-18 130-52 34-34 50-86 40-134l-348 0z" fill="#f43f5e"/>
+  <rect x="340" y="300" width="100" height="130" rx="6" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+  <rect x="355" y="318" width="70" height="6" rx="3" fill="#f43f5e"/>
+  <rect x="355" y="334" width="50" height="4" rx="2" fill="#cbd5e1"/>
+  <rect x="355" y="346" width="60" height="4" rx="2" fill="#cbd5e1"/>
+  <rect x="355" y="358" width="45" height="4" rx="2" fill="#cbd5e1"/>
+  <path d="M355 390h70" stroke="#f43f5e" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="388" cy="390" r="8" fill="#f43f5e"/>
+  <circle cx="140" cy="140" r="48" fill="#fef2f2"/>
+  <circle cx="700" cy="100" r="36" fill="#ede9fe"/>
+  <path d="M160 280l24-40 24 40" stroke="#f43f5e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

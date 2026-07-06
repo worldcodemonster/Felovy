@@ -169,14 +169,14 @@ export default function JobsPage() {
                         )}
                       </div>
                       <span className="text-xs text-gray-600 line-clamp-1 font-medium">
-                        {job.employer?.companyName ?? '—'}
+                        {job.employer?.companyName ?? '-'}
                       </span>
                     </div>
                   </td>
 
                   {/* Type */}
                   <td className="px-4 py-3 whitespace-nowrap">
-                    <span className="text-xs text-gray-500">{job.locationType ?? '—'}</span>
+                    <span className="text-xs text-gray-500">{job.locationType ?? '-'}</span>
                   </td>
 
                   {/* Status */}
@@ -194,7 +194,7 @@ export default function JobsPage() {
                   {/* Posted */}
                   <td className="px-4 py-3 whitespace-nowrap">
                     <span className="text-xs text-gray-400">
-                      {job.createdAt ? formatDate(job.createdAt as unknown as string) : '—'}
+                      {job.createdAt ? formatDate(job.createdAt as unknown as string) : '-'}
                     </span>
                   </td>
 

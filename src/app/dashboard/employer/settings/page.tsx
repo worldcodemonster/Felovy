@@ -53,7 +53,7 @@ export default function EmployerSettingsPage() {
   const emailVerifyForm = useForm<EmailVerifyForm>({ resolver: zodResolver(emailVerifySchema) });
   const passwordForm = useForm<PasswordForm>({ resolver: zodResolver(passwordSchema) });
 
-  // ── Email change — initiate ───────────────────────────────────────────────
+  // ── Email change, initiate ───────────────────────────────────────────────
   const onEmailInit = async (data: EmailInitForm) => {
     setEmailLoading(true);
     try {
@@ -69,7 +69,7 @@ export default function EmployerSettingsPage() {
     }
   };
 
-  // ── Email change — verify ─────────────────────────────────────────────────
+  // ── Email change, verify ─────────────────────────────────────────────────
   const onEmailVerify = async (data: EmailVerifyForm) => {
     setEmailLoading(true);
     try {

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+  <ellipse cx="400" cy="500" rx="220" ry="20" fill="#e2e8f0" opacity="0.6"/>
+  <circle cx="400" cy="200" r="48" fill="#fcd9b6"/>
+  <path d="M352 168c8-28 36-48 68-44 32 4 54 30 52 58-2 28-28 48-56 46-28-2-52-22-64-60z" fill="#334155"/>
+  <path d="M352 200c-6 18-2 38 10 52 12 14 30 22 48 22s36-8 48-22c12-14 16-34 10-52" fill="#fcd9b6"/>
+  <path d="M308 252c-10 46 4 96 36 128 32 32 78 48 124 48h8c46 0 92-16 124-48 32-32 46-82 36-128l-328 0z" fill="#fff" opacity="0.9"/>
+  <rect x="260" y="320" width="280" height="160" rx="12" fill="#0f172a"/>
+  <rect x="280" y="340" width="120" height="6" rx="3" fill="#f43f5e"/>
+  <rect x="280" y="358" width="180" height="6" rx="3" fill="#38bdf8"/>
+  <rect x="280" y="376" width="100" height="6" rx="3" fill="#a78bfa"/>
+  <rect x="280" y="394" width="140" height="6" rx="3" fill="#34d399"/>
+  <rect x="280" y="412" width="80" height="6" rx="3" fill="#f43f5e"/>
+  <circle cx="140" cy="140" r="36" fill="#fef2f2"/>
+  <circle cx="680" cy="120" r="48" fill="#f5f3ff"/>
+  <path d="M620 400l40 24v-48l-40 24z" fill="#fda4af" opacity="0.6"/>
+</svg>

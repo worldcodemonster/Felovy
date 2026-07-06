@@ -971,7 +971,7 @@ export function EmployerRow({
               {emp.contactRole && <p className="text-[11px] text-gray-400 truncate">{emp.contactRole}</p>}
             </div>
           ) : (
-            <span className="text-[12px] text-gray-300">—</span>
+            <span className="text-[12px] text-gray-300">EMDASH</span>
           )}
         </td>
 
@@ -985,7 +985,7 @@ export function EmployerRow({
               <span className="truncate max-w-[120px]">{emp.companyLocation || emp.country}</span>
             </span>
           ) : (
-            <span className="text-[12px] text-gray-300">—</span>
+            <span className="text-[12px] text-gray-300">EMDASH</span>
           )}
         </td>
 
@@ -1024,7 +1024,7 @@ export function EmployerRow({
           {emp.user?.createdAt ? (
             <span className="text-[12px] text-gray-400 whitespace-nowrap">{formatJoinDate(emp.user.createdAt)}</span>
           ) : (
-            <span className="text-[12px] text-gray-300">—</span>
+            <span className="text-[12px] text-gray-300">EMDASH</span>
           )}
         </td>
 

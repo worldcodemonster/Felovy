@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuthStore } from '@/store/auth.store';
 import { api } from '@/lib/api';
 import { Developer, Application } from '@/types';
+import { EmptyState } from '@/components/shared/EmptyState';
 import {
   Briefcase, MessageSquare, User, CheckCircle,
   ChevronRight, Loader2, AlertCircle, Eye,
@@ -110,11 +111,13 @@ export default function DeveloperDashboard() {
               </CardHeader>
               <CardContent>
                 {!applications?.length ? (
-                  <div className="text-center py-8 text-gray-400">
-                    <Briefcase className="h-10 w-10 mx-auto mb-2 opacity-30" />
-                    <p className="text-sm">No applications yet</p>
-                    <Link href="/jobs"><Button variant="gradient" size="sm" className="mt-3">Find Jobs</Button></Link>
-                  </div>
+                  <EmptyState
+                    illustration="empty-applications"
+                    title="No applications yet"
+                    compact
+                  >
+                    <Link href="/jobs"><Button variant="gradient" size="sm">Find Jobs</Button></Link>
+                  </EmptyState>
                 ) : (
                   <div className="space-y-3">
                     {applications.slice(0, 5).map(app => (

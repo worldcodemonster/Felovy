@@ -25,13 +25,7 @@ interface Props {
 
 export function StackCategories({ selected, onSelect }: Props) {
   return (
-    <>
-      {/* Devicon CSS */}
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
-      />
-      <div className="bg-white border-b">
+    <div className="bg-white border-b">
         <div className="container mx-auto max-w-7xl px-4">
           <div className="flex gap-1 overflow-x-auto py-3 scrollbar-none">
             <button
@@ -62,7 +56,6 @@ export function StackCategories({ selected, onSelect }: Props) {
             ))}
           </div>
         </div>
-      </div>
-    </>
+    </div>
   );
 }

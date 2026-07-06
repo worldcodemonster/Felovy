@@ -45,7 +45,7 @@ const COUNTRY_COORDS: Record<string, [number, number]> = {
   'Zimbabwe': [29.155, -19.016],
 };
 
-const BASE_POINTS: [number, number][] = [
+const BASE_POINTS_SOURCE: [number, number][] = [
   // USA (8)
   [ -74.0,  40.7],  // New York
   [-118.2,  34.1],  // Los Angeles
@@ -194,8 +194,8 @@ const BASE_POINTS: [number, number][] = [
 ];
 
 // Slightly darker than map country colour (#e2e8f0 = slate-200) → slate-400
-// UTC offsets — must stay in the same order as BASE_POINTS
-const BASE_TZ: number[] = [
+// UTC offsets, must stay in the same order as BASE_POINTS_SOURCE
+const BASE_TZ_SOURCE: number[] = [
   // USA
   -5, -8, -6, -5, -6, -6, -8, -5,
   // Canada
@@ -234,7 +234,87 @@ const BASE_TZ: number[] = [
   10, 10, 10,  8,
 ];
 
+/** Keep 70% of anchor points (~30% removed), evenly across regions. */
+const keepMapPoint = (_: unknown, i: number) => i % 10 < 7;
+
+const BASE_POINTS = BASE_POINTS_SOURCE.filter(keepMapPoint);
+const BASE_TZ = BASE_TZ_SOURCE.filter(keepMapPoint);
+
 const LINE_COLOR = '#94a3b8';
+const POINT_COLOR = '#22c55e';
+
+/** Original map land colors */
+const MAP_FILL_HERO = '#dfe3e9';
+const MAP_FILL_SECTION = '#e2e8f0';
+const MAP_STROKE = '#fff';
+const MAP_FILL_HOVER = '#cbd5e1';
+
+/** Hide small island nations west of the Americas (Pacific, left of USA on map) */
+function getCountryBbox(geo: {
+  bbox?: [number, number, number, number];
+  geometry?: { type: string; coordinates: unknown };
+}): [number, number, number, number] | null {
+  if (geo.bbox) return geo.bbox;
+  const geom = geo.geometry;
+  if (!geom) return null;
+
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  const visit = (coord: number[]) => {
+    minX = Math.min(minX, coord[0]);
+    maxX = Math.max(maxX, coord[0]);
+    minY = Math.min(minY, coord[1]);
+    maxY = Math.max(maxY, coord[1]);
+  };
+
+  const walkCoords = (coords: unknown): void => {
+    if (!Array.isArray(coords)) return;
+    if (typeof coords[0] === 'number') visit(coords as number[]);
+    else coords.forEach(walkCoords);
+  };
+
+  walkCoords(geom.coordinates);
+  if (!Number.isFinite(minX)) return null;
+  return [minX, minY, maxX, maxY];
+}
+
+function shouldShowCountry(geo: {
+  id?: string | number;
+  properties?: { name?: string };
+  bbox?: [number, number, number, number];
+  geometry?: { type: string; coordinates: unknown };
+}): boolean {
+  if (Number(geo.id) === 10) return false; // Antarctica
+
+  const name = geo.properties?.name ?? '';
+  const PACIFIC_WEST_NAMES = new Set([
+    'Fiji', 'Samoa', 'Tonga', 'Vanuatu', 'Solomon Is.', 'Kiribati',
+    'Marshall Is.', 'Micronesia', 'Nauru', 'Palau', 'Tuvalu',
+    'Fr. Polynesia', 'Cook Is.', 'Niue', 'Guam', 'N. Mariana Is.',
+    'American Samoa', 'Wallis and Futuna Is.', 'New Caledonia',
+  ]);
+  if (PACIFIC_WEST_NAMES.has(name)) return false;
+
+  const bbox = getCountryBbox(geo);
+  if (!bbox) return true;
+
+  const [minX, , maxX] = bbox;
+  const width = bbox[2] - minX;
+  const height = bbox[3] - bbox[1];
+
+  // Small land west of continental Americas, drops Hawaii-sized specks & outlying isles
+  const westOfAmericas = maxX < -90;
+  const isSmall = width < 14 && height < 14;
+  if (westOfAmericas && isSmall) return false;
+
+  // Aleutian / far-west slivers that aren't mainland
+  if (minX < -168 && width < 20 && height < 25) return false;
+
+  return true;
+}
 
 type LineDef = {
   key: number;
@@ -243,7 +323,7 @@ type LineDef = {
   dur: number;
 };
 
-// Dotted curved line — each line fades in/out on its own independent schedule
+// Dotted curved line, each line fades in/out on its own independent schedule
 function DottedArc({ d, delay, dur }: Omit<LineDef, 'key'>) {
   return (
     <path
@@ -362,59 +442,78 @@ function toMarkers(list: CountryCount[]) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-function MapCanvas() {
+function MapLayers() {
+  return (
+    <>
+      <Geographies geography={GEO_URL}>
+        {({ geographies }) =>
+          geographies.filter(shouldShowCountry).map(geo => (
+            <Geography
+              key={geo.rsmKey}
+              geography={geo}
+              fill={MAP_FILL_HERO}
+              stroke={MAP_STROKE}
+              strokeWidth={0.6}
+              style={{
+                default: { outline: 'none' },
+                hover:   { outline: 'none' },
+                pressed: { outline: 'none' },
+              }}
+            />
+          ))
+        }
+      </Geographies>
+      {BASE_POINTS.map((coords, i) => {
+        const d1 = ((i * 0.41) % 3).toFixed(2);
+        const d2 = ((i * 0.41 + 1.5) % 3).toFixed(2);
+        return (
+          <Marker key={`bp-${i}`} coordinates={coords}>
+            <circle fill="none" stroke={POINT_COLOR} strokeWidth={0.6}>
+              <animate attributeName="r"       values="1;14"   dur="3s" begin={`${d1}s`} repeatCount="indefinite" calcMode="linear" />
+              <animate attributeName="opacity" values="0.26;0"  dur="3s" begin={`${d1}s`} repeatCount="indefinite" calcMode="linear" />
+            </circle>
+            <circle fill="none" stroke={POINT_COLOR} strokeWidth={0.4}>
+              <animate attributeName="r"       values="1;14"   dur="3s" begin={`${d2}s`} repeatCount="indefinite" calcMode="linear" />
+              <animate attributeName="opacity" values="0.18;0"   dur="3s" begin={`${d2}s`} repeatCount="indefinite" calcMode="linear" />
+            </circle>
+            <circle r={1} fill={POINT_COLOR} fillOpacity={0.65} />
+          </Marker>
+        );
+      })}
+    </>
+  );
+}
+
+function MapCanvas({ fillHeight = false }: { fillHeight?: boolean }) {
   return (
     <ComposableMap
-      projectionConfig={{ scale: 147, center: [0, 10] }}
-      style={{ width: '100%', height: 'auto' }}
+      width={800}
+      height={365}
+      projectionConfig={fillHeight
+        ? { scale: 140, center: [5, 9] }
+        : { scale: 147, center: [0, 5] }}
+      className={fillHeight ? 'pointer-events-none select-none' : undefined}
+      style={fillHeight
+        ? { width: '100%', height: '100%', display: 'block', pointerEvents: 'none' }
+        : { width: '100%', height: 'auto', display: 'block' }}
+      preserveAspectRatio={fillHeight ? 'xMidYMid slice' : 'xMidYMid meet'}
     >
-      <ZoomableGroup zoom={1} minZoom={1} maxZoom={1}>
-        <Geographies geography={GEO_URL}>
-          {({ geographies }) =>
-            geographies.filter(geo => Number(geo.id) !== 10).map(geo => (
-              <Geography
-                key={geo.rsmKey}
-                geography={geo}
-                fill="#e2e8f0"
-                stroke="#fff"
-                strokeWidth={0.6}
-                style={{
-                  default: { outline: 'none' },
-                  hover:   { outline: 'none' },
-                  pressed: { outline: 'none' },
-                }}
-              />
-            ))
-          }
-        </Geographies>
-        {BASE_POINTS.map((coords, i) => {
-          // Stagger delays so no two points pulse at the same time
-          const d1 = ((i * 0.41) % 3).toFixed(2);
-          const d2 = ((i * 0.41 + 1.5) % 3).toFixed(2);
-          return (
-            <Marker key={`bp-${i}`} coordinates={coords}>
-              {/* Outer ripple */}
-              <circle fill="none" stroke="#22c55e" strokeWidth={0.6}>
-                <animate attributeName="r"       values="1;14"   dur="3s" begin={`${d1}s`} repeatCount="indefinite" calcMode="linear" />
-                <animate attributeName="opacity" values="0.45;0"  dur="3s" begin={`${d1}s`} repeatCount="indefinite" calcMode="linear" />
-              </circle>
-              {/* Inner ripple (offset by half cycle) */}
-              <circle fill="none" stroke="#22c55e" strokeWidth={0.4}>
-                <animate attributeName="r"       values="1;14"   dur="3s" begin={`${d2}s`} repeatCount="indefinite" calcMode="linear" />
-                <animate attributeName="opacity" values="0.3;0"   dur="3s" begin={`${d2}s`} repeatCount="indefinite" calcMode="linear" />
-              </circle>
-              {/* Core dot */}
-              <circle r={1} fill="#22c55e" fillOpacity={0.9} />
-            </Marker>
-          );
-        })}
-      </ZoomableGroup>
+      {fillHeight ? (
+        // Hero map is decorative, skip ZoomableGroup's invisible hit rect / d3 zoom layer.
+        <g style={{ pointerEvents: 'none' }}>
+          <MapLayers />
+        </g>
+      ) : (
+        <ZoomableGroup zoom={1} minZoom={1} maxZoom={1}>
+          <MapLayers />
+        </ZoomableGroup>
+      )}
     </ComposableMap>
   );
 }
 
 export default function WorldMap({ mode = 'section' }: { mode?: 'section' | 'hero' }) {
-  if (mode === 'hero') return <MapCanvas />;
+  if (mode === 'hero') return <MapCanvas fillHeight />;
 
   const [mapData, setMapData] = useState<MapData>({ developers: [], employers: [], jobs: [] });
 
@@ -455,12 +554,10 @@ export default function WorldMap({ mode = 'section' }: { mode?: 'section' | 'her
           <p className="text-xs font-bold tracking-[0.25em] uppercase text-felovy-red/70 mb-3">Global Reach</p>
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
             Talent &amp; Opportunities{' '}
-            <span className="bg-gradient-to-r from-felovy-red to-felovy-rose bg-clip-text text-transparent">
-              Worldwide
-            </span>
+            <span className="text-felovy-red">Worldwide</span>
           </h2>
           <p className="text-gray-500 max-w-md mx-auto text-sm">
-            Verified developers, hiring companies, and open jobs — spanning every corner of the globe.
+            Verified developers, hiring companies, and open jobs spanning every corner of the globe.
           </p>
         </div>
 
@@ -486,16 +583,16 @@ export default function WorldMap({ mode = 'section' }: { mode?: 'section' | 'her
 
               <Geographies geography={GEO_URL}>
                 {({ geographies }) =>
-                  geographies.filter(geo => Number(geo.id) !== 10).map(geo => (
+                  geographies.filter(shouldShowCountry).map(geo => (
                     <Geography
                       key={geo.rsmKey}
                       geography={geo}
-                      fill="#e2e8f0"
-                      stroke="#fff"
+                      fill={MAP_FILL_SECTION}
+                      stroke={MAP_STROKE}
                       strokeWidth={0.6}
                       style={{
                         default: { outline: 'none' },
-                        hover:   { outline: 'none', fill: '#cbd5e1' },
+                        hover:   { outline: 'none', fill: MAP_FILL_HOVER },
                         pressed: { outline: 'none' },
                       }}
                     />
@@ -528,10 +625,10 @@ export default function WorldMap({ mode = 'section' }: { mode?: 'section' | 'her
                 </Marker>
               ))}
 
-              {/* Anchor dots — small green */}
+              {/* Anchor dots */}
               {BASE_POINTS.map((coords, i) => (
                 <Marker key={`bp-${i}`} coordinates={coords}>
-                  <circle r={1.4} fill="#22c55e" fillOpacity={0.75} />
+                  <circle r={1.4} fill={POINT_COLOR} fillOpacity={0.8} />
                 </Marker>
               ))}
 
@@ -541,10 +638,10 @@ export default function WorldMap({ mode = 'section' }: { mode?: 'section' | 'her
 
         <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-xl mx-auto">
           {[
-            { value: totalDevs    || '—', label: 'Developers', color: 'text-felovy-red'  },
-            { value: totalEmps    || '—', label: 'Companies',  color: 'text-emerald-500' },
-            { value: totalJobs    || '—', label: 'Open Jobs',  color: 'text-sky-500'     },
-            { value: countryCount || '—', label: 'Countries',  color: 'text-gray-800'    },
+            { value: totalDevs    || '-', label: 'Developers', color: 'text-felovy-red'  },
+            { value: totalEmps    || '-', label: 'Companies',  color: 'text-emerald-500' },
+            { value: totalJobs    || '-', label: 'Open Jobs',  color: 'text-sky-500'     },
+            { value: countryCount || '-', label: 'Countries',  color: 'text-gray-800'    },
           ].map(({ value, label, color }) => (
             <div key={label} className="text-center">
               <div className={`text-2xl font-bold ${color}`}>{value}</div>
