@@ -27,7 +27,7 @@ const OWNER_NAV = [
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuthStore();
   const router   = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
 
   const { data: devProfile } = useQuery({
     queryKey: ['developer-me'],

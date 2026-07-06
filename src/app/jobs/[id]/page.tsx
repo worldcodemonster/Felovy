@@ -20,7 +20,8 @@ import {
 
 
 export default function JobDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams<{ id: string }>();
+  const id = String(params?.id ?? '');
   const { user } = useAuthStore();
   const [showApply, setShowApply]   = useState(false);
   const [hasApplied, setHasApplied] = useState(false);

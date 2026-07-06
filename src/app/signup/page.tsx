@@ -33,7 +33,7 @@ function SignUpContent() {
   const searchParams = useSearchParams();
   const { login } = useAuthStore();
   const [role, setRole] = useState(
-    searchParams.get('role') === 'employer' ? 'EMPLOYER' : 'DEVELOPER'
+    searchParams?.get('role') === 'employer' ? 'EMPLOYER' : 'DEVELOPER'
   );
   const [step, setStep] = useState<'form' | 'otp' | 'success'>('form');
   const [userId, setUserId] = useState('');

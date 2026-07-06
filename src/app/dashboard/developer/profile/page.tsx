@@ -48,7 +48,7 @@ function ProfilePageInner() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
 
-  const urlStep = Number(searchParams.get('step'));
+  const urlStep = Number(searchParams?.get('step') ?? '');
   const [activeStep, setActiveStep] = useState(urlStep >= 1 && urlStep <= 4 ? urlStep : 2);
 
   const [skills, setSkills] = useState<string[]>([]);

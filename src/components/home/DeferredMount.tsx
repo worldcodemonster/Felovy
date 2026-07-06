@@ -13,23 +13,23 @@ export function DeferredMount({ children, delayMs = 0, fallback = null }: Props)
 
   useEffect(() => {
     let cancelled = false;
+    let idleId: number | undefined;
+    let timer: ReturnType<typeof setTimeout> | undefined;
 
     const mount = () => {
       if (!cancelled) setReady(true);
     };
 
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      const idleId = window.requestIdleCallback(mount, { timeout: delayMs + 1500 });
-      return () => {
-        cancelled = true;
-        window.cancelIdleCallback(idleId);
-      };
+      idleId = window.requestIdleCallback(mount, { timeout: delayMs + 1500 });
+    } else {
+      timer = setTimeout(mount, delayMs);
     }
 
-    const timer = window.setTimeout(mount, delayMs);
     return () => {
       cancelled = true;
-      window.clearTimeout(timer);
+      if (idleId !== undefined) window.cancelIdleCallback(idleId);
+      if (timer !== undefined) clearTimeout(timer);
     };
   }, [delayMs]);
 

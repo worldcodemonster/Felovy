@@ -19,5 +19,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "pages/**/*.ts"],
-  "exclude": ["node_modules", "vitest.config.ts", "src/__tests__", "src/server/__tests__"]
+  "exclude": ["node_modules", "vitest.config.ts", "src/__tests__", "src/server/__tests__", "prisma"]
 }

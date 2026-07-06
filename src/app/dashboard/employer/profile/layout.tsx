@@ -17,7 +17,7 @@ const TABS = [
 ];
 
 export default function ProfileLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
 
   const { data: profile } = useQuery({
     queryKey: ['employer-me'],

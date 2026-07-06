@@ -33,7 +33,8 @@ function IdCardLightbox({ url, onClose }: { url: string; onClose: () => void }) 
 }
 
 export default function DeveloperPublicProfilePage() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams<{ id: string }>();
+  const id = String(params?.id ?? '');
   const [idCardOpen, setIdCardOpen] = useState(false);
 
   const { data: dev, isLoading, isError } = useQuery({

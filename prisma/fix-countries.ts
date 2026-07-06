@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { prisma } from '../src/config/database';
+import { prisma } from '../src/server/config/database';
 
 async function main() {
   const devs = await prisma.developer.findMany({

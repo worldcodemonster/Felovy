@@ -219,7 +219,7 @@ function ApplicantCard({
 
 export default function JobApplicationsPage() {
   const params  = useParams();
-  const jobId   = params.jobId as string;
+  const jobId   = String(params?.jobId ?? '');
   const qc      = useQueryClient();
   const [activeTab, setActiveTab] = useState<ApplicationStatus | 'ALL'>('ALL');
 

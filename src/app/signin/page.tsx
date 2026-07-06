@@ -32,7 +32,7 @@ function SignInContent() {
   const searchParams = useSearchParams();
   const { login } = useAuthStore();
   const [role, setRole] = useState<'DEVELOPER' | 'EMPLOYER'>(
-    searchParams.get('role')?.toUpperCase() === 'EMPLOYER' ? 'EMPLOYER' : 'DEVELOPER'
+    searchParams?.get('role')?.toUpperCase() === 'EMPLOYER' ? 'EMPLOYER' : 'DEVELOPER'
   );
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -56,7 +56,7 @@ function SignInContent() {
       const { user, accessToken, refreshToken } = await res.json();
       login(user, accessToken, refreshToken);
 
-      const redirect = searchParams.get('redirect');
+      const redirect = searchParams?.get('redirect');
       const dashMap: Record<string, string> = {
         DEVELOPER: '/dashboard/developer',
         EMPLOYER:  '/dashboard/employer',

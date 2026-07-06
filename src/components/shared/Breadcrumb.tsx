@@ -89,7 +89,7 @@ export function Breadcrumb({
   variant?: 'bar' | 'inline';
   excludePrefix?: string;
 }) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
 
   if (
     !pathname ||

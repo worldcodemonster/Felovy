@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import bcrypt from 'bcryptjs';
-import { prisma } from '../src/config/database';
+import { prisma } from '../src/server/config/database';
 
 const MOCK_DEVELOPERS = [
   {
