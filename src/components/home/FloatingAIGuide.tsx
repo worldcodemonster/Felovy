@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { X, Send, RotateCcw } from 'lucide-react';
 import { VirtualAgentOrb, type CharacterState } from './VirtualAgentOrb';
-import { API_URL } from '@/lib/utils';
+
+const FELI_CHAT_URL = '/api/ai/chat';
 
 const QUICK = [
   'How does verification work?',
@@ -116,19 +117,36 @@ export function FloatingAIGuide() {
       }));
 
       try {
-        const res = await fetch(`${API_URL}/ai/chat`, {
+        const res = await fetch(FELI_CHAT_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ messages: apiMessages }),
         });
 
-        const data = (await res.json()) as { reply?: string; message?: string };
+        const raw = await res.text();
+        let data: { reply?: string; message?: string } = {};
 
-        const reply =
-          res.ok && data.reply
-            ? data.reply
-            : data.message ||
-              "I'm having trouble connecting right now. Try again in a moment, or browse /#how-it-works and /#faqs on the site ✨";
+        if (raw) {
+          try {
+            data = JSON.parse(raw) as { reply?: string; message?: string };
+          } catch {
+            data = {};
+          }
+        }
+
+        let reply: string;
+
+        if (res.ok && data.reply) {
+          reply = data.reply;
+        } else if (data.message) {
+          reply = data.message;
+        } else if (res.status === 504 || res.status === 502) {
+          reply =
+            'Feli is taking a bit longer than usual. Please try again in a moment, or browse /jobs and /signup in the meantime.';
+        } else {
+          reply =
+            "I'm having trouble connecting right now. Try again in a moment, or browse /#how-it-works and /#faqs on the site.";
+        }
 
         setMessages((prev) => [...prev, { role: 'ai', text: reply }]);
         setCharState('happy');
@@ -138,7 +156,7 @@ export function FloatingAIGuide() {
           ...prev,
           {
             role: 'ai',
-            text: "I couldn't reach the AI service. Check your connection and try again — or explore /jobs and /signup in the meantime ✨",
+            text: "I couldn't reach the AI service. Check your connection and try again, or explore /jobs and /signup in the meantime.",
           },
         ]);
         setCharState('idle');
