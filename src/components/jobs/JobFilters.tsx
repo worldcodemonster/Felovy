@@ -21,7 +21,7 @@ export function JobFilters({ filters, onChange }: Props) {
     onChange({ ...filters, [key]: filters[key] === value ? '' : value });
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-5 sticky top-20">
+    <div className="ui-panel p-4 space-y-5 sticky top-20">
       <h3 className="font-semibold text-gray-900">Filters</h3>
 
       {/* Favorites (logged in users) */}
@@ -30,10 +30,10 @@ export function JobFilters({ filters, onChange }: Props) {
           <p className="text-xs font-medium text-gray-500 uppercase mb-2">Saved</p>
           <button
             onClick={() => set('favoriteOnly', 'true')}
-            className={`text-sm px-3 py-1.5 rounded-lg transition-all ${
+            className={`text-sm px-3 py-1.5 rounded-lg border transition-all ${
               filters.favoriteOnly === 'true'
-                ? 'bg-felovy-light text-felovy-red font-medium'
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'border-felovy-ink bg-felovy-fill text-felovy-ink font-medium'
+                : 'border-felovy-ink/25 text-gray-600 hover:border-felovy-ink bg-white'
             }`}
           >
             ♥ Favorite Jobs
@@ -49,11 +49,7 @@ export function JobFilters({ filters, onChange }: Props) {
             <button
               key={t}
               onClick={() => set('locationType', t)}
-              className={`text-xs px-3 py-1.5 rounded-full transition-all border ${
-                filters.locationType === t
-                  ? 'bg-felovy-red text-white border-felovy-red'
-                  : 'border-gray-200 text-gray-600 hover:border-felovy-light'
-              }`}
+              className={filters.locationType === t ? 'ui-chip-active' : 'ui-chip-inactive'}
             >
               {t}
             </button>
@@ -69,11 +65,7 @@ export function JobFilters({ filters, onChange }: Props) {
             <button
               key={t}
               onClick={() => set('salaryType', t)}
-              className={`text-xs px-3 py-1.5 rounded-full transition-all border ${
-                filters.salaryType === t
-                  ? 'bg-felovy-red text-white border-felovy-red'
-                  : 'border-gray-200 text-gray-600 hover:border-felovy-light'
-              }`}
+              className={filters.salaryType === t ? 'ui-chip-active' : 'ui-chip-inactive'}
             >
               {t}
             </button>
@@ -89,10 +81,10 @@ export function JobFilters({ filters, onChange }: Props) {
             <button
               key={ind}
               onClick={() => set('industry', ind)}
-              className={`text-sm text-left px-2 py-1 rounded-lg transition-all ${
+              className={`text-sm text-left px-2 py-1.5 rounded-lg border transition-all ${
                 filters.industry === ind
-                  ? 'bg-felovy-light text-felovy-red font-medium'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'border-felovy-ink bg-felovy-fill text-felovy-ink font-medium'
+                  : 'border-transparent text-gray-600 hover:border-felovy-ink/30 hover:bg-felovy-light/40'
               }`}
             >
               {ind}

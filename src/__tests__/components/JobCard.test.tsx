@@ -102,10 +102,16 @@ describe('JobCard', () => {
     expect(screen.getByText(/5 applicants/)).toBeInTheDocument();
   });
 
-  it('wraps card in a link to /jobs/:id', () => {
-    render(<JobCard job={baseJob} />);
+  it('wraps card in a link to /jobs/:id when signed in', () => {
+    render(<JobCard job={baseJob} userId="u1" />);
     const link = screen.getByRole('link');
     expect(link).toHaveAttribute('href', '/jobs/j1');
+  });
+
+  it('wraps card in a sign-in link when userId is absent', () => {
+    render(<JobCard job={baseJob} />);
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', '/signin?redirect=/jobs/j1');
   });
 
   it('shows Featured label when job is pinned', () => {

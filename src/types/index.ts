@@ -13,6 +13,13 @@ export interface User {
   createdAt: string;
 }
 
+export type CefrLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | 'Native';
+
+export interface DeveloperLanguage {
+  name: string;
+  level: CefrLevel;
+}
+
 export interface Developer {
   id: string;
   userId: string;
@@ -22,13 +29,15 @@ export interface Developer {
   location?: string;
   country?: string;
   gender?: string;
+  birthYear?: number;
   linkedin?: string;
   github?: string;
   summary?: string;
   skills: string[];
   workExperience?: WorkExperience[];
   education?: Education[];
-  languages: string[];
+  /** Raw from API — use parseDeveloperLanguages() for display */
+  languages: DeveloperLanguage[] | string[];
   photoUrl?: string;
   introVideoUrl?: string;
   introVideoType?: string;
@@ -36,6 +45,7 @@ export interface Developer {
   profileStep: number;
   isVerified: boolean;
   verifiedAt?: string;
+  isBot?: boolean;
   user?: Partial<User>;
 }
 

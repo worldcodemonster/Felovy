@@ -31,6 +31,11 @@ function isUUID(s: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 }
 
+function isDeveloperProfilePath(pathname: string) {
+  const segs = pathname.split('/').filter(Boolean);
+  return segs.length === 2 && segs[0] === 'developers' && isUUID(segs[1]);
+}
+
 function buildCrumbs(pathname: string) {
   const allSegs = pathname.split('/').filter(Boolean);
   const crumbs: { label: string; href: string }[] = [];
@@ -96,6 +101,7 @@ export function Breadcrumb({
     pathname === '/' ||
     pathname.startsWith('/signin') ||
     pathname.startsWith('/signup') ||
+    isDeveloperProfilePath(pathname) ||
     (excludePrefix && pathname.startsWith(excludePrefix))
   ) return null;
 

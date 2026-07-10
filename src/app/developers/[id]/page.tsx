@@ -1,41 +1,149 @@
 'use client';
 
-import { useState } from 'react';
-import { createPortal } from 'react-dom';
+import { useMemo, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Navbar } from '@/components/shared/Navbar';
 import { api } from '@/lib/api';
 import { Developer } from '@/types';
-import { countryToFlagUrl } from '@/lib/countries';
 import {
-  MapPin, Github, Linkedin, Briefcase, GraduationCap,
-  Globe, Check, Clock, X, Maximize2, Loader2,
+  CEFR_META,
+  computeAge,
+  experienceDurationYears,
+  formatExperienceDates,
+  parseDeveloperLanguages,
+} from '@/lib/developer-profile';
+import { resolvePublicDeveloperPlace } from '@/lib/developer-location';
+import {
+  MapPin, Github, Linkedin, GraduationCap,
+  Loader2, Calendar, FileText, ExternalLink, Phone, Mail,
 } from 'lucide-react';
-import { SkillChip } from '@/app/dashboard/owner/_shared';
 import { GenderAvatar } from '@/components/shared/GenderAvatar';
+import { cn } from '@/lib/utils';
 
-function IdCardLightbox({ url, onClose }: { url: string; onClose: () => void }) {
-  if (typeof document === 'undefined') return null;
-  return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/85 backdrop-blur-md" />
-      <div className="relative max-w-2xl w-full" onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} className="absolute -top-4 -right-4 h-9 w-9 rounded-full bg-white shadow-xl flex items-center justify-center hover:bg-gray-50 z-10">
-          <X className="h-4 w-4 text-gray-700" />
-        </button>
-        <img src={url} alt="ID Card" className="w-full rounded-2xl shadow-2xl object-contain max-h-[82vh]" />
+/** Profile page palette: black, white, green only */
+const G = {
+  page: 'bg-white',
+  card: 'bg-white border border-gray-200 rounded-lg',
+  title: 'text-black',
+  body: 'text-gray-600',
+  muted: 'text-gray-400',
+  accent: 'text-[#15803d]',
+  accentBg: 'bg-[#15803d]',
+  accentLight: 'bg-[#ecfdf5]',
+  accentBorder: 'border-[#15803d]',
+};
+
+function CvCard({
+  title,
+  children,
+  className,
+}: {
+  title?: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <section className={cn(G.card, 'overflow-hidden', className)}>
+      {title && (
+        <div className="px-4 py-3 border-b border-gray-200 bg-white">
+          <h2 className="text-sm font-semibold text-black">{title}</h2>
+        </div>
+      )}
+      <div className={title ? 'p-4' : 'p-4'}>{children}</div>
+    </section>
+  );
+}
+
+function ProfileDetailsPanel({
+  developerId,
+  fullName,
+  age,
+  country,
+  location,
+  phone,
+  email,
+}: {
+  developerId: string;
+  fullName?: string | null;
+  age: number | null;
+  country?: string | null;
+  location?: string | null;
+  phone?: string | null;
+  email?: string | null;
+}) {
+  const hasAge = age != null;
+  const hasPlace = !!(country || location);
+  const placeLabel = resolvePublicDeveloperPlace({
+    id: developerId,
+    fullName,
+    location,
+    country,
+  });
+
+  const detailIcon = 'h-4 w-4 shrink-0';
+  const detailText = cn('text-sm leading-snug', G.body);
+
+  return (
+    <div className="border-t border-gray-200 px-4 py-4 space-y-3">
+      {hasPlace && (
+        <div className="flex items-center gap-2">
+          <MapPin className={cn(detailIcon, G.muted)} />
+          <span className={detailText}>{placeLabel}</span>
+        </div>
+      )}
+
+      {hasAge && (
+        <div className="flex items-center gap-2">
+          <Calendar className={cn(detailIcon, G.muted)} />
+          <span className={detailText}>{age} years</span>
+        </div>
+      )}
+
+      {phone && (
+        <div className="flex items-center gap-2 min-w-0">
+          <Phone className={cn(detailIcon, G.muted)} />
+          <a href={`tel:${phone}`} className={cn(detailText, 'hover:underline truncate')}>
+            {phone}
+          </a>
+        </div>
+      )}
+
+      {email && (
+        <div className="flex items-center gap-2 min-w-0">
+          <Mail className={cn(detailIcon, G.muted)} />
+          <a href={`mailto:${email}`} className={cn(detailText, 'hover:underline truncate')}>
+            {email}
+          </a>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LanguageRow({ name, level }: { name: string; level: keyof typeof CEFR_META }) {
+  const meta = CEFR_META[level];
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-2 mb-1.5">
+        <span className="text-sm font-medium text-black">{name}</span>
+        <span className={cn('text-[10px] font-bold uppercase tracking-wider', G.accent)}>{level}</span>
       </div>
-    </div>,
-    document.body,
+      <div className="h-1.5 rounded-full bg-gray-200 overflow-hidden">
+        <div
+          className={cn('h-full rounded-full', G.accentBg)}
+          style={{ width: `${meta.pct}%` }}
+        />
+      </div>
+      <p className={cn('text-[10px] mt-1', G.muted)}>{meta.label}</p>
+    </div>
   );
 }
 
 export default function DeveloperPublicProfilePage() {
   const params = useParams<{ id: string }>();
   const id = String(params?.id ?? '');
-  const [idCardOpen, setIdCardOpen] = useState(false);
 
   const { data: dev, isLoading, isError } = useQuery({
     queryKey: ['dev-profile', id],
@@ -46,12 +154,18 @@ export default function DeveloperPublicProfilePage() {
     },
   });
 
+  const languages = useMemo(
+    () => (dev ? parseDeveloperLanguages(dev.languages) : []),
+    [dev],
+  );
+  const age = dev ? computeAge(dev.birthYear) : null;
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white">
         <Navbar />
         <div className="flex justify-center pt-40">
-          <Loader2 className="h-7 w-7 animate-spin text-gray-300" />
+          <Loader2 className={cn('h-8 w-8 animate-spin', G.accent, 'opacity-40')} />
         </div>
       </div>
     );
@@ -61,190 +175,205 @@ export default function DeveloperPublicProfilePage() {
     return (
       <div className="min-h-screen bg-white">
         <Navbar />
-        <div className="flex flex-col items-center justify-center py-40 gap-3 text-gray-400">
-          <p className="text-sm">Developer not found.</p>
-          <Link href="/jobs" className="text-sm font-semibold text-felovy-red hover:underline">← Browse jobs</Link>
+        <div className="flex flex-col items-center justify-center py-40 gap-4">
+          <p className={cn('text-base', G.body)}>Developer not found.</p>
+          <Link href="/jobs" className={cn('text-sm font-semibold hover:underline', G.accent)}>
+            ← Browse jobs
+          </Link>
         </div>
       </div>
     );
   }
 
-  const name    = dev.fullName || 'Developer';
-  const flagUrl = dev.country ? countryToFlagUrl(dev.country) : '';
+  const name = dev.fullName || 'Developer';
+  const hasBody = !!(dev.summary || dev.workExperience?.length || dev.education?.length);
+  const hasDetails = !!(dev.country || dev.location || age != null || dev.phone || dev.user?.email);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className={cn('min-h-screen', G.page)}>
       <Navbar />
-      <div className="container mx-auto max-w-5xl px-4 py-10">
-        <div className="flex gap-5 items-start">
 
-          {/* ── Sidebar ──────────────────────────────────────────── */}
-          <aside className="w-72 shrink-0 sticky top-6 space-y-3">
-            <div className="bg-white rounded-2xl border border-gray-200/80 overflow-hidden">
-              <div className="px-6 pt-7 pb-5 flex flex-col items-center text-center border-b border-gray-100">
-                <div className="relative mb-4">
-                  <div className="rounded-full ring-4 ring-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] overflow-hidden">
-                    <GenderAvatar src={dev.photoUrl} name={name} gender={dev.gender} size={104} />
-                  </div>
-                  {dev.isVerified && (
-                    <div className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow">
-                      <Check className="h-3.5 w-3.5 text-white stroke-[2.5]" />
-                    </div>
-                  )}
-                </div>
+      <div className="container mx-auto max-w-5xl px-4 py-8 lg:py-10">
+        <div className="grid lg:grid-cols-[272px_1fr] gap-4 items-start">
+          {/* ── Left column ───────────────────────────────────── */}
+          <div className="space-y-4 lg:sticky lg:top-20">
+            <section className={cn(G.card, 'overflow-hidden')}>
+              <div className="relative w-full aspect-square bg-gray-100">
+                <GenderAvatar
+                  src={dev.photoUrl}
+                  name={name}
+                  gender={dev.gender}
+                  variant="cover"
+                  className="object-cover object-top"
+                />
 
-                <h1 className="text-[17px] font-bold text-gray-900 leading-tight">{name}</h1>
-                {dev.title && <p className="text-sm text-gray-500 mt-0.5">{dev.title}</p>}
+                <div className="absolute inset-x-0 bottom-0 h-[38%] bg-gradient-to-t from-[#15803d]/70 via-emerald-600/25 to-transparent opacity-45" />
+                <div className="absolute inset-x-0 bottom-0 h-[32%] bg-gradient-to-t from-black/30 via-black/8 to-transparent" />
 
-                <div className="mt-3">
-                  {dev.isVerified ? (
-                    <span className="inline-flex items-center gap-1 bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm shadow-emerald-200">
-                      <Check className="h-3 w-3 stroke-[2.5]" /> Verified
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-amber-500 text-xs font-semibold px-2.5 py-1 rounded-full border border-amber-200">
-                      <Clock className="h-3 w-3" /> Pending verification
-                    </span>
+                <div className="absolute bottom-0 left-0 right-0 p-3 z-10 [text-shadow:0_1px_3px_rgba(0,0,0,0.55)]">
+                  <h1 className="font-bold text-white text-lg leading-tight">{name}</h1>
+                  {dev.title && (
+                    <p className="text-white text-sm mt-0.5 font-semibold leading-snug">{dev.title}</p>
                   )}
                 </div>
               </div>
 
-              <div className="px-5 py-4 space-y-2.5 text-sm border-b border-gray-100">
-                {dev.country && (
-                  <div className="flex items-center gap-2.5 text-gray-700 font-medium">
-                    {flagUrl && <img src={flagUrl} alt={dev.country} width={20} height={15} className="rounded-[2px] object-cover shadow-sm shrink-0" />}
-                    {dev.country}
-                  </div>
-                )}
-                {dev.location && (
-                  <div className="flex items-center gap-2.5 text-gray-500">
-                    <MapPin className="h-4 w-4 text-gray-300 shrink-0" />
-                    {dev.location}
-                  </div>
-                )}
-              </div>
-
-              {dev.skills.length > 0 && (
-                <div className="px-5 py-4 border-b border-gray-100">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">Skills</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {dev.skills.map(s => <SkillChip key={s} label={s} />)}
-                  </div>
-                </div>
+              {hasDetails && (
+                <ProfileDetailsPanel
+                  developerId={dev.id}
+                  fullName={dev.fullName}
+                  age={age}
+                  country={dev.country}
+                  location={dev.location}
+                  phone={dev.phone}
+                  email={dev.user?.email}
+                />
               )}
-
-              {dev.languages.length > 0 && (
-                <div className="px-5 py-4">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">Languages</p>
-                  <div className="space-y-2">
-                    {dev.languages.map(l => (
-                      <div key={l} className="flex items-center gap-2 text-sm text-gray-600">
-                        <Globe className="h-3.5 w-3.5 text-gray-300 shrink-0" />
-                        {l}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            </section>
 
             {(dev.github || dev.linkedin) && (
-              <div className="bg-white rounded-2xl border border-gray-200/80 px-5 py-4">
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">Profiles</p>
-                <div className="space-y-2.5">
+              <CvCard title="Links">
+                <div className="space-y-2">
                   {dev.github && (
-                    <a href={dev.github} target="_blank" rel="noreferrer"
-                      className="flex items-center gap-2.5 text-sm text-gray-600 hover:text-felovy-red transition-colors group"
+                    <a
+                      href={dev.github}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={cn('flex items-center gap-2 text-sm font-medium hover:underline', G.accent)}
                     >
-                      <Github className="h-4 w-4 text-gray-400 group-hover:text-felovy-red shrink-0" />
-                      <span className="truncate">{dev.github.replace(/^https?:\/\/(www\.)?github\.com\//, '')}</span>
+                      <Github className="h-4 w-4" />
+                      <span className="truncate flex-1">GitHub</span>
+                      <ExternalLink className="h-3 w-3 opacity-50" />
                     </a>
                   )}
                   {dev.linkedin && (
-                    <a href={dev.linkedin} target="_blank" rel="noreferrer"
-                      className="flex items-center gap-2.5 text-sm text-gray-600 hover:text-felovy-red transition-colors group"
+                    <a
+                      href={dev.linkedin}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={cn('flex items-center gap-2 text-sm font-medium hover:underline', G.accent)}
                     >
-                      <Linkedin className="h-4 w-4 text-gray-400 group-hover:text-felovy-red shrink-0" />
-                      <span>LinkedIn Profile</span>
+                      <Linkedin className="h-4 w-4" />
+                      <span className="truncate flex-1">LinkedIn</span>
+                      <ExternalLink className="h-3 w-3 opacity-50" />
                     </a>
                   )}
                 </div>
-              </div>
-            )}
-          </aside>
-
-          {/* ── Main content ─────────────────────────────────────── */}
-          <div className="flex-1 min-w-0 space-y-4">
-            {dev.summary && (
-              <section className="bg-white rounded-2xl border border-gray-200/80 px-7 py-6">
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-4">Overview</p>
-                <p className="text-sm text-gray-700 leading-[1.8] whitespace-pre-line">{dev.summary}</p>
-              </section>
+              </CvCard>
             )}
 
-            {dev.workExperience && dev.workExperience.length > 0 && (
-              <section className="bg-white rounded-2xl border border-gray-200/80 px-7 py-6">
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-5 flex items-center gap-1.5">
-                  <Briefcase className="h-3.5 w-3.5" /> Work Experience
-                </p>
-                <div className="space-y-0">
-                  {dev.workExperience.map((w, i) => (
-                    <div key={i} className={`relative pl-6 ${i < dev.workExperience!.length - 1 ? 'pb-7' : ''}`}>
-                      {i < dev.workExperience!.length - 1 && <div className="absolute left-[5px] top-4 bottom-0 w-px bg-gray-100" />}
-                      <div className="absolute left-0 top-1 h-3 w-3 rounded-full bg-indigo-100 border-[2.5px] border-indigo-400" />
-                      <div className="flex items-start justify-between gap-4 flex-wrap">
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">{w.role}</p>
-                          <p className="text-sm text-gray-500 mt-0.5">{w.company}</p>
-                        </div>
-                        <span className="text-[11px] text-gray-400 bg-gray-50 border border-gray-100 rounded-full px-2.5 py-1 shrink-0 mt-0.5">
-                          {w.startDate} to {w.current ? 'Present' : (w.endDate ?? '')}
-                        </span>
-                      </div>
-                      {w.description && <p className="text-sm text-gray-500 mt-2 leading-relaxed">{w.description}</p>}
-                    </div>
+            {dev.skills.length > 0 && (
+              <CvCard title="Skills">
+                <div className="flex flex-wrap gap-1.5">
+                  {dev.skills.map(s => (
+                    <span
+                      key={s}
+                      className="text-xs font-medium text-black px-2.5 py-1 rounded-md border border-gray-200 bg-white"
+                    >
+                      {s}
+                    </span>
                   ))}
                 </div>
-              </section>
+              </CvCard>
             )}
 
-            {dev.education && dev.education.length > 0 && (
-              <section className="bg-white rounded-2xl border border-gray-200/80 px-7 py-6">
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-5 flex items-center gap-1.5">
-                  <GraduationCap className="h-3.5 w-3.5" /> Education
-                </p>
-                <div className="space-y-0">
-                  {dev.education.map((e, i) => (
-                    <div key={i} className={`relative pl-6 ${i < dev.education!.length - 1 ? 'pb-7' : ''}`}>
-                      {i < dev.education!.length - 1 && <div className="absolute left-[5px] top-4 bottom-0 w-px bg-gray-100" />}
-                      <div className="absolute left-0 top-1 h-3 w-3 rounded-full bg-violet-100 border-[2.5px] border-violet-400" />
-                      <div className="flex items-start justify-between gap-4 flex-wrap">
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">{e.degree} in {e.field}</p>
-                          <p className="text-sm text-gray-500 mt-0.5">{e.institution}</p>
-                        </div>
-                        <span className="text-[11px] text-gray-400 bg-gray-50 border border-gray-100 rounded-full px-2.5 py-1 shrink-0 mt-0.5">
-                          {e.startDate} to {e.current ? 'Present' : (e.endDate ?? '')}
-                        </span>
-                      </div>
-                    </div>
+            {languages.length > 0 && (
+              <CvCard title="Languages">
+                <div className="space-y-4">
+                  {languages.map(l => (
+                    <LanguageRow key={l.name} name={l.name} level={l.level} />
                   ))}
                 </div>
-              </section>
+              </CvCard>
             )}
+          </div>
 
-            {!dev.summary && !dev.workExperience?.length && !dev.education?.length && (
-              <div className="bg-white rounded-2xl border border-gray-200/80 px-7 py-16 flex flex-col items-center text-center gap-3 text-gray-400">
-                <p className="text-sm">This developer hasn't filled out their profile yet.</p>
-              </div>
+          {/* ── Right column — CV sections as cards ───────────── */}
+          <div className="space-y-4 min-w-0">
+            {!hasBody ? (
+              <CvCard title="Profile">
+                <div className="py-12 text-center">
+                  <FileText className={cn('h-10 w-10 mx-auto mb-3', G.muted)} />
+                  <p className={cn('text-sm', G.body)}>This developer hasn&apos;t filled out their profile yet.</p>
+                </div>
+              </CvCard>
+            ) : (
+              <>
+                {dev.summary && (
+                  <CvCard title="Summary">
+                    <p className={cn('text-sm leading-relaxed whitespace-pre-line', G.body)}>
+                      {dev.summary}
+                    </p>
+                  </CvCard>
+                )}
+
+                {dev.workExperience && dev.workExperience.length > 0 && (
+                  <CvCard title="Work Experience">
+                    <div className="divide-y divide-gray-200 -mx-4 -mb-4">
+                      {dev.workExperience.map((w, i) => {
+                        const years = experienceDurationYears(w.startDate, w.endDate, w.current);
+                        return (
+                          <div key={`${w.company}-${w.role}-${i}`} className="px-4 py-4 first:pt-0">
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                              <div>
+                                <h3 className="text-sm font-bold text-black">{w.role}</h3>
+                                <p className={cn('text-sm font-medium mt-0.5', G.accent)}>{w.company}</p>
+                              </div>
+                              <div className="sm:text-right shrink-0">
+                                <p className={cn('text-xs font-medium tabular-nums', G.body)}>
+                                  {formatExperienceDates(w.startDate, w.endDate, w.current)}
+                                </p>
+                                {years > 0 && (
+                                  <p className={cn('text-[10px] mt-0.5', G.muted)}>
+                                    {years} yr{years !== 1 ? 's' : ''}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            {w.current && (
+                              <span className={cn('inline-block mt-2 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border bg-white', G.accentBorder, G.accent)}>
+                                Current
+                              </span>
+                            )}
+                            {w.description && (
+                              <p className={cn('text-sm mt-3 leading-relaxed', G.body)}>{w.description}</p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CvCard>
+                )}
+
+                {dev.education && dev.education.length > 0 && (
+                  <CvCard title="Education">
+                    <div className="divide-y divide-gray-200 -mx-4 -mb-4">
+                      {dev.education.map((e, i) => (
+                        <div key={i} className="px-4 py-4 first:pt-0 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                          <div className="flex items-start gap-3">
+                            <div className="h-8 w-8 rounded-md flex items-center justify-center shrink-0 border border-gray-200 bg-white">
+                              <GraduationCap className={cn('h-4 w-4', G.accent)} />
+                            </div>
+                            <div>
+                              <h3 className="text-sm font-bold text-black">
+                                {e.degree} in {e.field}
+                              </h3>
+                              <p className={cn('text-sm mt-0.5', G.body)}>{e.institution}</p>
+                            </div>
+                          </div>
+                          <p className={cn('text-xs font-medium tabular-nums shrink-0 sm:ml-2', G.body)}>
+                            {formatExperienceDates(e.startDate, e.endDate, e.current)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </CvCard>
+                )}
+              </>
             )}
           </div>
         </div>
       </div>
-
-      {idCardOpen && dev.idCardUrl && (
-        <IdCardLightbox url={dev.idCardUrl} onClose={() => setIdCardOpen(false)} />
-      )}
     </div>
   );
 }

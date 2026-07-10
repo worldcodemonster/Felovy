@@ -10,9 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Developer, Employer } from '@/types';
 import { countryToFlagUrl, COUNTRY_NAMES } from '@/lib/countries';
+import { formatDeveloperPlace } from '@/lib/developer-location';
 import {
   Check, CheckCircle, ChevronLeft, ChevronRight, ChevronDown,
-  MapPin, Search, Clock, AlertTriangle, Globe,
+  MapPin, Search, Clock, AlertTriangle, Globe, Bot,
   UserX, UserCheck, Ban, VolumeX, Volume2, Calendar,
   BadgeCheck, BadgeMinus,
 } from 'lucide-react';
@@ -30,7 +31,7 @@ export const STATUS_MAP: Record<string, string> = {
 
 // ─── Confirm dialog ───────────────────────────────────────────────────────────
 
-function ConfirmDialog({
+export function ConfirmDialog({
   title, desc, destructive, onConfirm, onCancel,
 }: {
   title: string;
@@ -501,7 +502,7 @@ export function EmployerCardSkeleton() {
 function getCardTheme(status: string, isVerified: boolean) {
   if (status === 'BANNED') return {
     card:   'border-red-300 hover:shadow-[0_12px_40px_rgba(239,68,68,0.25)]',
-    header: 'bg-gradient-to-b from-red-100/90 to-red-50/30',
+    header: 'bg-gradient-to-b from-green-100/90 to-green-50/30',
     ring:   'ring-red-400',
     footer: 'border-red-200 bg-red-50',
   };
@@ -534,10 +535,14 @@ type PendingConfirm = {
 
 export function DeveloperCard({
   dev, onVerify, onModerate,
+  selected,
+  onToggleSelect,
 }: {
   dev: Developer;
   onVerify: (id: string, approved: boolean) => void;
   onModerate: (userId: string, action: string) => void;
+  selected?: boolean;
+  onToggleSelect?: (id: string) => void;
 }) {
   const status = dev.user?.status ?? 'ACTIVE';
   const name   = dev.fullName || dev.user?.email || 'Developer';
@@ -550,7 +555,25 @@ export function DeveloperCard({
 
   return (
     <>
-      <div className="relative group cursor-pointer hover:-translate-y-1.5 transition-all duration-250">
+      <div className={`relative group cursor-pointer hover:-translate-y-1.5 transition-all duration-250 ${selected ? 'ring-2 ring-felovy-red ring-offset-2 rounded-2xl' : ''}`}>
+        {onToggleSelect && (
+          <div className="absolute top-2.5 left-2.5 z-30" onClick={e => e.stopPropagation()}>
+            <input
+              type="checkbox"
+              checked={!!selected}
+              onChange={() => onToggleSelect(dev.id)}
+              className="h-4 w-4 rounded border-gray-300 accent-felovy-red cursor-pointer"
+              aria-label={`Select ${name}`}
+            />
+          </div>
+        )}
+        {dev.isBot && (
+          <div className={`absolute top-2.5 z-20 ${onToggleSelect ? 'left-9' : 'left-2.5'}`}>
+            <span className="inline-flex items-center gap-1 bg-violet-600 text-white text-[10px] font-bold tracking-wider px-2 py-[3px] rounded-full shadow-md shadow-violet-200 uppercase">
+              <Bot className="h-2.5 w-2.5" /> Bot
+            </span>
+          </div>
+        )}
         <div className="absolute top-2.5 right-2.5 z-20" onClick={e => e.stopPropagation()}>
           <SmallStatusBadge status={status} />
         </div>
@@ -601,7 +624,7 @@ export function DeveloperCard({
                 {dev.country && countryToFlagUrl(dev.country) && (
                   <img src={countryToFlagUrl(dev.country)} alt={dev.country} width={20} height={15} className="rounded-[2px] object-cover shadow-sm shrink-0" />
                 )}
-                <span className="line-clamp-1">{dev.location || dev.country}</span>
+                <span className="line-clamp-1">{formatDeveloperPlace(dev.location, dev.country)}</span>
               </span>
             )}
             <span className="text-[11px] text-gray-300 truncate max-w-[180px]">{dev.user?.email}</span>

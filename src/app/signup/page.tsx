@@ -130,7 +130,7 @@ function SignUpContent() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <Card className="shadow-xl border-felovy-light/30">
+        <Card className="shadow-xl">
           <CardContent className="p-6">
             <AnimatePresence mode="wait">
               {step === 'form' && (
@@ -142,8 +142,8 @@ function SignUpContent() {
                         key={r}
                         type="button"
                         onClick={() => setRole(r)}
-                        className={`rounded-lg border-2 p-3 text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-                          role === r ? 'border-felovy-red bg-felovy-light text-felovy-red' : 'border-gray-200 text-gray-700'
+                        className={`rounded-lg border p-3 text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                          role === r ? 'border-felovy-ink bg-felovy-fill text-felovy-ink' : 'border-felovy-ink/25 text-gray-700 hover:border-felovy-ink bg-white'
                         }`}
                       >
                         {r === 'DEVELOPER' ? <Code2 className="h-4 w-4" /> : <Building2 className="h-4 w-4" />}

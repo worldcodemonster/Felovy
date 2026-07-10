@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata, truncate, absoluteUrl } from '@/lib/seo';
 import { getDeveloperSeo } from '@/lib/seo-server';
+import { formatDeveloperPlace } from '@/lib/developer-location';
 import { JsonLd } from '@/components/seo/JsonLd';
 
 type Props = { params: { id: string }; children: React.ReactNode };
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
   const name = dev.fullName || 'Developer';
   const title = dev.title || 'Software Developer';
-  const location = [dev.location, dev.country].filter(Boolean).join(', ');
+  const location = formatDeveloperPlace(dev.location, dev.country);
   const skills = dev.skills?.slice(0, 6).join(', ');
   const description = truncate(
     dev.summary ||

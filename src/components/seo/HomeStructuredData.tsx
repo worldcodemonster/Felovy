@@ -1,5 +1,5 @@
 import { FELOVY_FAQS } from '@/lib/faqs';
-import { SITE_NAME, SITE_TAGLINE, SITE_URL, absoluteUrl, DEFAULT_DESCRIPTION } from '@/lib/seo';
+import { SITE_NAME, SITE_TAGLINE, SITE_URL, absoluteUrl, DEFAULT_DESCRIPTION, SITE_LOGO } from '@/lib/seo';
 import { JsonLd } from '@/components/seo/JsonLd';
 
 export function HomeStructuredData() {
@@ -8,7 +8,7 @@ export function HomeStructuredData() {
     '@type': 'Organization',
     name: SITE_NAME,
     url: SITE_URL,
-    logo: absoluteUrl('/logo.png'),
+    logo: absoluteUrl(SITE_LOGO),
     description: DEFAULT_DESCRIPTION,
     slogan: SITE_TAGLINE,
     sameAs: [] as string[],

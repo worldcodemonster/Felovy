@@ -17,7 +17,7 @@ interface Flower {
   fadeDuration: number; // y fraction over which it fully fades
 }
 
-const COLORS = ['#e11d48', '#f43f5e', '#fb7185', '#fda4af', '#a855f7', '#d8b4fe', '#fecdd3'];
+const COLORS = ['#15803d', '#22c55e', '#66b38c', '#4ade80', '#166534', '#bbf7d0', '#dcfce7'];
 
 export function FlowerCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);

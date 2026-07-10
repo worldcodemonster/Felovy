@@ -39,7 +39,7 @@ export function FavoriteButton({ isFavorited, onToggle, size = 'sm', className }
         className={cn(
           'relative z-10 rounded-full transition-colors',
           size === 'md'
-            ? 'p-2 hover:bg-rose-50'
+            ? 'p-2 hover:bg-green-50'
             : 'p-1 hover:bg-gray-100',
         )}
         aria-label={isFavorited ? 'Remove from saved' : 'Save job'}

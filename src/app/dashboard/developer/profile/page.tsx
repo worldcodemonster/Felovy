@@ -16,7 +16,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/components/ui/toaster';
 import { api } from '@/lib/api';
 import { COUNTRY_NAMES } from '@/lib/countries';
-import { Developer, WorkExperience, Education } from '@/types';
+import { Developer, WorkExperience, Education, DeveloperLanguage, CefrLevel } from '@/types';
+import { CEFR_LEVELS, parseDeveloperLanguages } from '@/lib/developer-profile';
 import {
   CheckCircle2, Upload, Camera, Loader2, Plus, X, ArrowLeft, ArrowRight, Save,
   Eye, EyeOff, Mail, Lock, ShieldCheck,
@@ -31,6 +32,7 @@ const step2Schema = z.object({
   location: z.string().optional(),
   country: z.string().optional(),
   gender: z.string().optional(),
+  birthYear: z.union([z.string(), z.number()]).optional(),
   linkedin: z.string().url().optional().or(z.literal('')),
   github: z.string().url().optional().or(z.literal('')),
   summary: z.string().min(20, 'At least 20 characters').optional(),
@@ -53,8 +55,9 @@ function ProfilePageInner() {
 
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState('');
-  const [languages, setLanguages] = useState<string[]>([]);
+  const [languages, setLanguages] = useState<DeveloperLanguage[]>([]);
   const [newLang, setNewLang] = useState('');
+  const [newLangLevel, setNewLangLevel] = useState<CefrLevel>('B2');
   const [workExp, setWorkExp] = useState<WorkExperience[]>([]);
   const [education, setEducation] = useState<Education[]>([]);
   const photoRef = useRef<HTMLInputElement>(null);
@@ -152,12 +155,13 @@ function ProfilePageInner() {
       location: profile.location || '',
       country: profile.country || '',
       gender: profile.gender || '',
+      birthYear: profile.birthYear ?? '',
       linkedin: profile.linkedin || '',
       github: profile.github || '',
       summary: profile.summary || '',
     });
     setSkills(profile.skills || []);
-    setLanguages(profile.languages || []);
+    setLanguages(parseDeveloperLanguages(profile.languages));
     setWorkExp((profile.workExperience as WorkExperience[]) || []);
     setEducation((profile.education as Education[]) || []);
 
@@ -220,8 +224,9 @@ function ProfilePageInner() {
   };
 
   const addLang = () => {
-    if (newLang.trim() && !languages.includes(newLang.trim())) {
-      setLanguages(l => [...l, newLang.trim()]);
+    const name = newLang.trim();
+    if (name && !languages.some(l => l.name.toLowerCase() === name.toLowerCase())) {
+      setLanguages(l => [...l, { name, level: newLangLevel }]);
       setNewLang('');
     }
   };
@@ -419,8 +424,8 @@ function ProfilePageInner() {
                         <Input {...register('phone')} placeholder="+1 234 567 8900" className="mt-1" />
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-700">Location</label>
-                        <Input {...register('location')} placeholder="New York, USA" className="mt-1" />
+                        <label className="text-sm font-medium text-gray-700">City</label>
+                        <Input {...register('location')} placeholder="Istanbul" className="mt-1" />
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-700">Country</label>
@@ -443,6 +448,18 @@ function ProfilePageInner() {
                           <option value="female">Female</option>
                           <option value="other">Other</option>
                         </select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">Birth Year</label>
+                        <Input
+                          {...register('birthYear')}
+                          type="number"
+                          min={1940}
+                          max={new Date().getFullYear() - 16}
+                          placeholder="e.g. 1992"
+                          className="mt-1"
+                        />
+                        <p className="text-xs text-gray-400 mt-1">Shown as age on your public profile</p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-700">LinkedIn URL</label>
@@ -480,18 +497,47 @@ function ProfilePageInner() {
                       </div>
                     </div>
 
-                    {/* Languages */}
+                    {/* Languages (CEFR) */}
                     <div>
-                      <label className="text-sm font-medium text-gray-700">Languages</label>
-                      <div className="flex gap-2 mt-1">
-                        <Input value={newLang} onChange={e => setNewLang(e.target.value)} placeholder="e.g. English" onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addLang())} />
+                      <label className="text-sm font-medium text-gray-700">Languages · CEFR level</label>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        <Input
+                          value={newLang}
+                          onChange={e => setNewLang(e.target.value)}
+                          placeholder="e.g. English"
+                          className="flex-1 min-w-[140px]"
+                          onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addLang())}
+                        />
+                        <select
+                          value={newLangLevel}
+                          onChange={e => setNewLangLevel(e.target.value as CefrLevel)}
+                          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-felovy-red"
+                        >
+                          {CEFR_LEVELS.map(l => (
+                            <option key={l} value={l}>{l}</option>
+                          ))}
+                        </select>
                         <Button type="button" variant="outline" size="icon" onClick={addLang}><Plus className="h-4 w-4" /></Button>
                       </div>
-                      <div className="flex flex-wrap gap-1.5 mt-2">
+                      <div className="space-y-2 mt-3">
                         {languages.map(l => (
-                          <Badge key={l} variant="secondary" className="gap-1">
-                            {l} <button type="button" onClick={() => setLanguages(ls => ls.filter(x => x !== l))}><X className="h-2.5 w-2.5" /></button>
-                          </Badge>
+                          <div key={l.name} className="flex items-center justify-between gap-2 rounded-lg border border-gray-100 bg-gray-50/60 px-3 py-2">
+                            <span className="text-sm font-medium text-gray-800">{l.name}</span>
+                            <div className="flex items-center gap-2">
+                              <select
+                                value={l.level}
+                                onChange={e => setLanguages(ls => ls.map(x => x.name === l.name ? { ...x, level: e.target.value as CefrLevel } : x))}
+                                className="rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-600"
+                              >
+                                {CEFR_LEVELS.map(lv => (
+                                  <option key={lv} value={lv}>{lv}</option>
+                                ))}
+                              </select>
+                              <button type="button" onClick={() => setLanguages(ls => ls.filter(x => x.name !== l.name))} className="text-gray-400 hover:text-red-500">
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </div>
                         ))}
                       </div>
                     </div>

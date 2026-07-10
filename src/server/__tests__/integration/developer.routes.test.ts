@@ -28,7 +28,7 @@ const sampleDeveloper = {
   fullName: 'Jane Dev',
   title: 'Full Stack Engineer',
   skills: ['React', 'Node.js'],
-  languages: ['English'],
+  languages: [{ name: 'English', level: 'Native' }],
   profileStep: 2,
   isVerified: true,
   user: { email: 'dev@test.com', status: 'ACTIVE', createdAt: new Date().toISOString() },
@@ -154,7 +154,7 @@ describe('PUT /api/developers/me/step2', () => {
       .send({
         fullName: 'Updated Name',
         skills: ['React'],
-        languages: ['English'],
+        languages: [{ name: 'English', level: 'Native' }],
       });
     expect(res.status).toBe(200);
     expect(res.body.fullName).toBe('Updated Name');

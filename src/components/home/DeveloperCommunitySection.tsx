@@ -6,7 +6,11 @@ export interface DeveloperProfile {
   src: string;
   name: string;
   role: string;
+  /** City for DB-backed profiles; carousel uses `place` for display */
+  location?: string;
   country: string;
+  /** Formatted "City, Country" for display */
+  place?: string;
   grad: string;
   quote?: string;
 }

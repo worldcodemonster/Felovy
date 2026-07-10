@@ -3,6 +3,12 @@ import { prisma } from '../config/database';
 import { uploadImage, uploadVideo, uploadFile } from '../services/upload.service';
 import { AuthRequest } from '../middlewares/auth.middleware';
 
+function stripBotField<T extends { isBot?: boolean }>(dev: T, role?: string): T | Omit<T, 'isBot'> {
+  if (role === 'OWNER') return dev;
+  const { isBot: _bot, ...rest } = dev;
+  return rest;
+}
+
 // ─── Get own profile ──────────────────────────────────────────────────────────
 
 export const getMyProfile = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -18,14 +24,19 @@ export const getMyProfile = async (req: AuthRequest, res: Response): Promise<voi
 
 export const updateProfileStep2 = async (req: AuthRequest, res: Response): Promise<void> => {
   const {
-    fullName, title, phone, location, country, gender, linkedin, github,
+    fullName, title, phone, location, country, gender, birthYear, linkedin, github,
     summary, skills, workExperience, education, languages,
   } = req.body;
+
+  const parsedBirthYear = birthYear != null && birthYear !== ''
+    ? Number(birthYear)
+    : undefined;
 
   const developer = await prisma.developer.update({
     where: { userId: req.user!.userId },
     data: {
       fullName, title, phone, location, country, gender: gender || null, linkedin, github,
+      birthYear: parsedBirthYear && parsedBirthYear > 1940 ? parsedBirthYear : null,
       summary,
       skills: Array.isArray(skills) ? skills : JSON.parse(skills || '[]'),
       workExperience: workExperience
@@ -34,7 +45,9 @@ export const updateProfileStep2 = async (req: AuthRequest, res: Response): Promi
       education: education
         ? (typeof education === 'string' ? JSON.parse(education) : education)
         : undefined,
-      languages: Array.isArray(languages) ? languages : JSON.parse(languages || '[]'),
+      languages: languages
+        ? (typeof languages === 'string' ? JSON.parse(languages) : languages)
+        : [],
       profileStep: 2,
     },
   });
@@ -83,9 +96,12 @@ export const updateProfileStep4 = async (req: AuthRequest, res: Response): Promi
 
 export const getDeveloperProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   const { id } = req.params;
-  const developer = await prisma.developer.findUnique({ where: { id } });
+  const developer = await prisma.developer.findUnique({
+    where: { id },
+    include: { user: { select: { email: true } } },
+  });
   if (!developer) { res.status(404).json({ message: 'Developer not found' }); return; }
-  res.json(developer);
+  res.json(stripBotField(developer, req.user?.role));
 };
 
 // ─── Public: map data for landing page (developers + employers + jobs) ────────
@@ -173,7 +189,12 @@ export const listDevelopers = async (req: AuthRequest, res: Response): Promise<v
       prisma.developer.count({ where }),
     ]);
 
-    res.json({ developers, total, page: Number(page), limit: Number(limit) });
+    res.json({
+      developers: developers.map((d) => stripBotField(d, req.user?.role)),
+      total,
+      page: Number(page),
+      limit: Number(limit),
+    });
   } catch (err) {
     console.error('[listDevelopers]', err);
     res.status(500).json({ message: 'Failed to fetch developers' });

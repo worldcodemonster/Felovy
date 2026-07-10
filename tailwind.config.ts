@@ -44,14 +44,16 @@ const config: Config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
-        // Felovy brand palette
+        // Felovy brand — green fill + dark ink outline (leaf logo)
         felovy: {
-          red: '#e11d48',
-          pink: '#f43f5e',
-          rose: '#fb7185',
-          light: '#fecdd3',
-          purple: '#a855f7',
-          'light-purple': '#d8b4fe',
+          fill: '#66b38c',
+          ink: '#111111',
+          red: '#15803d',
+          pink: '#22c55e',
+          rose: '#66b38c',
+          light: '#dcfce7',
+          purple: '#166534',
+          'light-purple': '#bbf7d0',
         },
       },
       borderRadius: {

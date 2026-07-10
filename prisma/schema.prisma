@@ -81,13 +81,14 @@ model Developer {
   location       String?
   country        String?
   gender         String?
+  birthYear      Int?
   linkedin       String?
   github         String?
   summary        String?
   skills         String[]
   workExperience Json?
   education      Json?
-  languages      String[]
+  languages      Json      @default("[]")
 
   // Step 3
   photoUrl       String?
@@ -100,6 +101,7 @@ model Developer {
   profileStep Int     @default(1)
   isVerified  Boolean @default(false)
   verifiedAt  DateTime?
+  isBot       Boolean @default(false)
 
   applications        Application[]
   messages            Message[]

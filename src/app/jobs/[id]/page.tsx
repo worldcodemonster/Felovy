@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { Navbar } from '@/components/shared/Navbar';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { JobApplyModal } from '@/components/jobs/JobApplyModal';
 import { useAuthStore } from '@/store/auth.store';
 import { api } from '@/lib/api';
@@ -22,7 +23,7 @@ import {
 export default function JobDetailPage() {
   const params = useParams<{ id: string }>();
   const id = String(params?.id ?? '');
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const [showApply, setShowApply]   = useState(false);
   const [hasApplied, setHasApplied] = useState(false);
 
@@ -32,7 +33,7 @@ export default function JobDetailPage() {
       const res = await api.post('/applications/mine', {});
       return res.json() as Promise<{ jobId: string }[]>;
     },
-    enabled: user?.role === 'DEVELOPER',
+    enabled: isAuthenticated && user?.role === 'DEVELOPER',
   });
 
   const { data: devProfile } = useQuery({
@@ -41,7 +42,7 @@ export default function JobDetailPage() {
       const res = await api.post('/developers/me', {});
       return res.json() as Promise<Developer>;
     },
-    enabled: user?.role === 'DEVELOPER',
+    enabled: isAuthenticated && user?.role === 'DEVELOPER',
   });
 
   const alreadyApplied  = hasApplied || !!myApplications?.some(a => a.jobId === id);
@@ -54,8 +55,33 @@ export default function JobDetailPage() {
       if (!res.ok) throw new Error('Not found');
       return res.json() as Promise<Job>;
     },
+    enabled: isAuthenticated,
     retry: 1,
   });
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navbar />
+        <div className="container mx-auto max-w-5xl px-6 py-16">
+          <EmptyState
+            illustration="auth-developer"
+            title="Sign in to view this job"
+            description="Create a free account or sign in to see job details on Felovy."
+          >
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <Link href={`/signin?redirect=/jobs/${id}`}>
+                <Button variant="gradient">Sign In</Button>
+              </Link>
+              <Link href="/signup">
+                <Button variant="outline">Create Free Account</Button>
+              </Link>
+            </div>
+          </EmptyState>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -111,7 +137,7 @@ export default function JobDetailPage() {
                 {logoUrl ? (
                   <img src={logoUrl} alt={job.employer?.companyName ?? ''} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="h-full w-full bg-gradient-to-br from-felovy-red to-pink-500 flex items-center justify-center">
+                  <div className="h-full w-full bg-gradient-to-br from-felovy-red to-felovy-pink flex items-center justify-center">
                     <span className="text-white font-black text-3xl select-none">{logoLetter}</span>
                   </div>
                 )}
@@ -305,7 +331,7 @@ export default function JobDetailPage() {
               <div className="bg-white rounded-xl p-5 shadow-sm">
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4">Company</p>
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="shrink-0 h-9 w-9 rounded-lg overflow-hidden ring-1 ring-black/8 flex items-center justify-center bg-gradient-to-br from-felovy-red to-pink-500">
+                  <div className="shrink-0 h-9 w-9 rounded-lg overflow-hidden ring-1 ring-black/8 flex items-center justify-center bg-gradient-to-br from-felovy-red to-felovy-pink">
                     {logoUrl ? (
                       <img src={logoUrl} alt="" className="h-full w-full object-cover" />
                     ) : (

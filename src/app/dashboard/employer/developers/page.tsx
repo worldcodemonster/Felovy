@@ -8,6 +8,7 @@ import { api } from '@/lib/api';
 import { Developer } from '@/types';
 import { UserAvatar, SkillChip } from '@/app/dashboard/owner/_shared';
 import { cn } from '@/lib/utils';
+import { resolvePublicDeveloperPlace } from '@/lib/developer-location';
 import { EmptyState } from '@/components/shared/EmptyState';
 import {
   Search, Users, MapPin, Loader2, ExternalLink,
@@ -50,10 +51,17 @@ function DeveloperCard({ dev }: { dev: Developer }) {
           <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{dev.title}</p>
         )}
 
-        {dev.location && (
+        {(dev.country || dev.location) && (
           <div className="flex items-center justify-center gap-1 mt-1.5 text-[11px] text-gray-400">
             <MapPin className="h-3 w-3 shrink-0" />
-            <span className="truncate max-w-[140px]">{dev.location}</span>
+            <span className="truncate max-w-[140px]">
+              {resolvePublicDeveloperPlace({
+                id: dev.id,
+                fullName: dev.fullName,
+                location: dev.location,
+                country: dev.country,
+              })}
+            </span>
           </div>
         )}
 

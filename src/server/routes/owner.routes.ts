@@ -4,6 +4,13 @@ import {
   getDashboardStats, listUsers, moderateUser,
   listAllDevelopers, listAllEmployers, listAllJobs,
   reviewJobOwner, verifyDeveloper, verifyEmployer,
+  deleteDevelopers,
+  generateBotDevelopers,
+  generateBotDevelopersStream,
+  generateHomeCarouselBotsStream,
+  listPortraitProviders,
+  syncBotDeveloperPasswords,
+  syncDeveloperLocations,
 } from '../controllers/owner.controller';
 
 const router = Router();
@@ -15,6 +22,13 @@ router.post('/stats', asHandler(getDashboardStats));
 router.post('/users', asHandler(listUsers));
 router.post('/moderate', asHandler(moderateUser));
 router.post('/developers', asHandler(listAllDevelopers));
+router.post('/developers/delete', asHandler(deleteDevelopers));
+router.post('/developers/bot/providers', asHandler(listPortraitProviders));
+router.post('/developers/bot/sync-passwords', asHandler(syncBotDeveloperPasswords));
+router.post('/developers/sync-locations', asHandler(syncDeveloperLocations));
+router.post('/developers/bot/home-carousel', asHandler(generateHomeCarouselBotsStream));
+router.post('/developers/bot', asHandler(generateBotDevelopers));
+router.post('/developers/bot/stream', asHandler(generateBotDevelopersStream));
 router.post('/employers', asHandler(listAllEmployers));
 router.post('/jobs', asHandler(listAllJobs));
 router.patch('/jobs/:id/review', asHandler(reviewJobOwner));

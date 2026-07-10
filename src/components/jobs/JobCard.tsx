@@ -15,7 +15,7 @@ const SKILL_COLORS = [
   'bg-sky-50 text-sky-600',
   'bg-amber-50 text-amber-700',
   'bg-emerald-50 text-emerald-600',
-  'bg-rose-50 text-rose-600',
+  'bg-green-50 text-green-600',
   'bg-indigo-50 text-indigo-600',
 ];
 
@@ -29,7 +29,7 @@ function PinnedBorder({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative p-[1.5px] rounded-xl overflow-hidden h-full">
       <div
-        className="absolute animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#fb7185_0%,#a855f7_35%,#818cf8_65%,#fb7185_100%)]"
+        className="absolute animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,#66b38c_0%,#22c55e_35%,#4ade80_65%,#66b38c_100%)]"
         style={{ inset: '-100%' }}
       />
       <div className="relative h-full">{children}</div>
@@ -72,7 +72,7 @@ export function JobCard({ job, userId, applied }: Props) {
       'group flex flex-col bg-white p-5 h-full cursor-pointer',
       job.isPinned
         ? 'rounded-[10px]'
-        : 'rounded-xl border border-gray-200 hover:border-gray-400 hover:shadow-[0_0_0_1px_#9ca3af]'
+        : 'rounded-xl border border-felovy-ink/20 hover:border-felovy-ink hover:shadow-sm'
     )}>
 
       {/* Top: title + location */}
@@ -164,7 +164,7 @@ export function JobCard({ job, userId, applied }: Props) {
   );
 
   return (
-    <Link href={`/jobs/${job.id}`} className="block h-full">
+    <Link href={userId ? `/jobs/${job.id}` : `/signin?redirect=/jobs/${job.id}`} className="block h-full">
       {job.isPinned ? <PinnedBorder>{card}</PinnedBorder> : card}
     </Link>
   );

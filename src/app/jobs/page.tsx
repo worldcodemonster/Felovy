@@ -8,15 +8,12 @@ import { Navbar } from '@/components/shared/Navbar';
 import { JobCard } from '@/components/jobs/JobCard';
 import { api } from '@/lib/api';
 import { Job, Developer, Application } from '@/types';
-import { Search, Loader2, Lock, Sparkles, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Loader2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { Illustration } from '@/components/shared/Illustration';
 import { cn } from '@/lib/utils';
 
-const PREVIEW_COUNT = 8;
-const PAGE_LIMIT    = 20;
+const PAGE_LIMIT = 20;
 
 function PaginationBar({ page, total, limit, onChange }: { page: number; total: number; limit: number; onChange: (p: number) => void }) {
   const totalPages = Math.ceil(total / limit);
@@ -82,7 +79,7 @@ const TABS = [
 ];
 
 export default function JobsPage() {
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const [search,    setSearch]    = useState('');
   const [page,      setPage]      = useState(1);
   const [savedOnly, setSavedOnly] = useState(false);
@@ -101,6 +98,7 @@ export default function JobsPage() {
       const res = await api.post('/jobs/list', body);
       return res.json() as Promise<{ jobs: Job[]; total: number }>;
     },
+    enabled: isAuthenticated,
   });
 
   const { data: devProfile } = useQuery({
@@ -122,13 +120,32 @@ export default function JobsPage() {
   });
 
   const appliedJobIds = new Set((myApplications ?? []).map(a => a.jobId));
-
-  const isGuest   = !user;
-  const allJobs   = data?.jobs ?? [];
-  const visibleJobs = isGuest ? allJobs.slice(0, PREVIEW_COUNT) : allJobs;
-  const hiddenJobs  = isGuest ? allJobs.slice(PREVIEW_COUNT) : [];
-  const hiddenCount = Math.max(0, (data?.total ?? 0) - PREVIEW_COUNT);
+  const allJobs = data?.jobs ?? [];
   const isIncompleteDevProfile = user?.role === 'DEVELOPER' && devProfile && devProfile.profileStep < 4;
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navbar />
+        <div className="container mx-auto max-w-7xl px-6 py-16">
+          <EmptyState
+            illustration="auth-developer"
+            title="Sign in to see job listings"
+            description="Create a free account or sign in to browse open roles on Felovy."
+          >
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <Link href="/signin?redirect=/jobs">
+                <Button variant="gradient">Sign In</Button>
+              </Link>
+              <Link href="/signup">
+                <Button variant="outline">Create Free Account</Button>
+              </Link>
+            </div>
+          </EmptyState>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -206,53 +223,17 @@ export default function JobsPage() {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-              {visibleJobs.map(job => (
+              {allJobs.map(job => (
                 <JobCard key={job.id} job={job} userId={user?.id} applied={appliedJobIds.has(job.id)} />
               ))}
             </div>
 
-            {/* Guest blur overlay */}
-            {hiddenJobs.length > 0 && (
-              <div className="relative mt-3">
-                <div className="absolute -top-12 left-0 right-0 h-16 bg-gradient-to-b from-transparent to-white pointer-events-none z-10" />
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 blur-sm select-none pointer-events-none opacity-60">
-                  {hiddenJobs.map(job => (
-                    <JobCard key={job.id} job={job} />
-                  ))}
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center z-20">
-                  <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 px-8 py-10 text-center max-w-sm w-full mx-4">
-                    <Illustration name="auth-developer" className="w-36 h-auto mx-auto mb-4" width={144} height={108} />
-                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-900 mb-3">
-                      <Lock className="h-6 w-6 text-white" />
-                    </div>
-                    <Badge variant="secondary" className="mb-3">
-                      <Sparkles className="h-3 w-3 mr-1" />
-                      {hiddenCount} more role{hiddenCount !== 1 ? 's' : ''} available
-                    </Badge>
-                    <h3 className="text-xl font-bold text-gray-900 mt-2 mb-1">Unlock All Roles</h3>
-                    <p className="text-sm text-gray-500 mb-6">
-                      Sign in to browse all{' '}
-                      <span className="font-semibold text-gray-800">{data?.total}</span> open positions.
-                    </p>
-                    <div className="flex flex-col gap-2">
-                      <Link href="/signin"><Button variant="gradient" className="w-full">Sign In</Button></Link>
-                      <Link href="/signup"><Button variant="outline" className="w-full">Create Free Account</Button></Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Pagination */}
-            {!isGuest && (
-              <PaginationBar
-                page={page}
-                total={data?.total ?? 0}
-                limit={PAGE_LIMIT}
-                onChange={p => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              />
-            )}
+            <PaginationBar
+              page={page}
+              total={data?.total ?? 0}
+              limit={PAGE_LIMIT}
+              onChange={p => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            />
           </>
         )}
       </div>

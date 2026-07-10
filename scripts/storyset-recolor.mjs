@@ -1,5 +1,5 @@
 /**
- * Recolor Storyset Rafiki SVGs to Felovy brand red (#e11d48).
+ * Recolor Storyset Rafiki SVGs to Felovy brand green (#15803d).
  * Run: node scripts/storyset-recolor.mjs
  * Applied automatically after fetch-storyset-illustrations.mjs
  */
@@ -9,12 +9,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 /** Felovy primary brand color */
-export const STORYSET_PINK = '#e11d48';
-export const STORYSET_MAGENTA = '#be123c';
-/** Primary accent — Felovy red */
-export const STORYSET_BRAND_PRIMARY = '#e11d48';
+export const STORYSET_PINK = '#15803d';
+export const STORYSET_MAGENTA = '#166534';
+/** Primary accent — Felovy green */
+export const STORYSET_BRAND_PRIMARY = '#15803d';
 /** Darker accent for shadows / depth */
-export const STORYSET_BRAND_PRIMARY_DARK = '#be123c';
+export const STORYSET_BRAND_PRIMARY_DARK = '#166534';
 
 /** Storyset default blues/reds and prior recolor hex → Felovy brand */
 export const STORYSET_RECOLOR_MAP = [
@@ -152,5 +152,5 @@ if (isMain) {
     }
   }
 
-  console.log(`Recolored ${changed}/${files.length} Storyset SVGs to Felovy red (${STORYSET_BRAND_PRIMARY}).`);
+  console.log(`Recolored ${changed}/${files.length} Storyset SVGs to Felovy green (${STORYSET_BRAND_PRIMARY}).`);
 }

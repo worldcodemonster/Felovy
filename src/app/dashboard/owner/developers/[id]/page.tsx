@@ -10,10 +10,12 @@ import { toast } from '@/components/ui/toaster';
 import { api } from '@/lib/api';
 import { Developer } from '@/types';
 import { countryToFlagUrl } from '@/lib/countries';
+import { computeAge, parseDeveloperLanguages } from '@/lib/developer-profile';
+import { formatDeveloperPlace } from '@/lib/developer-location';
 import {
   MapPin, Mail, Phone, Github, Linkedin,
   Briefcase, GraduationCap, Globe, Check, Clock, Calendar,
-  BadgeCheck, BadgeMinus, VolumeX, Volume2, UserX, Ban, UserCheck,
+  BadgeCheck, BadgeMinus, VolumeX, Volume2, UserX, Ban, UserCheck, Bot,
   CreditCard, X, Maximize2, AlertTriangle, CheckCircle,
 } from 'lucide-react';
 import { UserAvatar, StatusDot, SkillChip, CompletionBar } from '../../_shared';
@@ -150,6 +152,8 @@ export default function DeveloperProfilePage({ params }: { params: { id: string 
   }
 
   const name    = dev.fullName || dev.user?.email || 'Developer';
+  const age     = computeAge(dev.birthYear);
+  const langs   = parseDeveloperLanguages(dev.languages);
   const status  = dev.user?.status ?? 'ACTIVE';
   const flagUrl = dev.country ? countryToFlagUrl(dev.country) : '';
 
@@ -184,6 +188,11 @@ export default function DeveloperProfilePage({ params }: { params: { id: string 
 
               <div className="mt-3 flex items-center justify-center gap-2 flex-wrap">
                 <StatusDot status={status} />
+                {dev.isBot && (
+                  <span className="inline-flex items-center gap-1 bg-violet-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm shadow-violet-200">
+                    <Bot className="h-3 w-3" /> Bot
+                  </span>
+                )}
                 {dev.isVerified ? (
                   <span className="inline-flex items-center gap-1 bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm shadow-emerald-200">
                     <Check className="h-3 w-3 stroke-[2.5]" /> Verified
@@ -198,18 +207,13 @@ export default function DeveloperProfilePage({ params }: { params: { id: string 
 
             {/* Meta */}
             <div className="px-5 py-4 space-y-2.5 text-sm border-b border-gray-100">
-              {dev.country && (
-                <div className="flex items-center gap-2.5 text-gray-700 font-medium">
+              {(dev.country || dev.location) && (
+                <div className="flex items-center gap-2.5 text-gray-700 font-medium min-w-0">
                   {flagUrl && (
-                    <img src={flagUrl} alt={dev.country} width={20} height={15} className="rounded-[2px] object-cover shadow-sm shrink-0" />
+                    <img src={flagUrl} alt={dev.country ?? ''} width={20} height={15} className="rounded-[2px] object-cover shadow-sm shrink-0" />
                   )}
-                  {dev.country}
-                </div>
-              )}
-              {dev.location && (
-                <div className="flex items-center gap-2.5 text-gray-500">
                   <MapPin className="h-4 w-4 text-gray-300 shrink-0" />
-                  {dev.location}
+                  <span className="truncate">{formatDeveloperPlace(dev.location, dev.country)}</span>
                 </div>
               )}
               {dev.user?.email && (
@@ -222,6 +226,12 @@ export default function DeveloperProfilePage({ params }: { params: { id: string 
                 <div className="flex items-center gap-2.5 text-gray-500">
                   <Phone className="h-4 w-4 text-gray-300 shrink-0" />
                   {dev.phone}
+                </div>
+              )}
+              {age != null && (
+                <div className="flex items-center gap-2.5 text-gray-500">
+                  <Calendar className="h-4 w-4 text-gray-300 shrink-0" />
+                  {age} years old
                 </div>
               )}
               {dev.user?.createdAt && (
@@ -253,14 +263,17 @@ export default function DeveloperProfilePage({ params }: { params: { id: string 
             )}
 
             {/* Languages */}
-            {dev.languages.length > 0 && (
+            {langs.length > 0 && (
               <div className="px-5 py-4">
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">Languages</p>
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">Languages · CEFR</p>
                 <div className="space-y-2">
-                  {dev.languages.map(l => (
-                    <div key={l} className="flex items-center gap-2 text-sm text-gray-600">
-                      <Globe className="h-3.5 w-3.5 text-gray-300 shrink-0" />
-                      {l}
+                  {langs.map(l => (
+                    <div key={l.name} className="flex items-center justify-between gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <Globe className="h-3.5 w-3.5 text-gray-300 shrink-0" />
+                        {l.name}
+                      </div>
+                      <span className="text-xs font-semibold text-gray-400">{l.level}</span>
                     </div>
                   ))}
                 </div>

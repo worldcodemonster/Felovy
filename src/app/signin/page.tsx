@@ -81,7 +81,7 @@ function SignInContent() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <Card className="shadow-xl border-felovy-light/30">
+        <Card className="shadow-xl">
           <CardContent className="p-6 space-y-5">
             {/* Role selector */}
             <div className="grid grid-cols-2 gap-2">
@@ -90,10 +90,10 @@ function SignInContent() {
                   key={r.value}
                   type="button"
                   onClick={() => setRole(r.value)}
-                  className={`rounded-lg border-2 p-3 text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                  className={`rounded-lg border p-3 text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                     role === r.value
-                      ? 'border-felovy-red bg-felovy-light text-felovy-red'
-                      : 'border-gray-200 text-gray-700 hover:border-felovy-light'
+                      ? 'border-felovy-ink bg-felovy-fill text-felovy-ink'
+                      : 'border-felovy-ink/25 text-gray-700 hover:border-felovy-ink bg-white'
                   }`}
                 >
                   <r.icon className="h-4 w-4" />

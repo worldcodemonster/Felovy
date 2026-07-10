@@ -30,7 +30,7 @@ export const DEFAULT_KEYWORDS = [
 
 export const DEFAULT_OG_IMAGE = '/logo.png';
 
-/** Site logo — also used as favicon (see src/app/icon.png) */
+/** Site logo — hand-drawn leaf (public/logo.png) */
 export const SITE_LOGO = '/logo.png';
 
 export function absoluteUrl(path = ''): string {
@@ -120,7 +120,6 @@ export const rootMetadata: Metadata = {
   icons: {
     icon: [
       { url: SITE_LOGO, type: 'image/png' },
-      { url: '/favicon.png', type: 'image/png' },
     ],
     shortcut: SITE_LOGO,
     apple: [{ url: SITE_LOGO, type: 'image/png', sizes: '180x180' }],

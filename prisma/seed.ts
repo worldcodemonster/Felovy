@@ -4,7 +4,7 @@ import { prisma } from '../src/server/config/database';
 
 const MOCK_DEVELOPERS = [
   {
-    email: 'alice.chen@felovy.dev',
+    email: 'alice.chen@gmail.com',
     profile: {
       fullName: 'Alice Chen',
       title: 'Full Stack Developer',
@@ -15,8 +15,9 @@ const MOCK_DEVELOPERS = [
       github: 'https://github.com/alicechen',
       summary:
         'Passionate full-stack developer with 6 years building scalable web applications. I thrive on clean architecture, thoughtful APIs, and seamless user experiences.',
+      birthYear: 1994,
       skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'AWS', 'Docker'],
-      languages: ['English', 'Mandarin'],
+      languages: [{ name: 'English', level: 'Native' }, { name: 'Mandarin', level: 'C1' }],
       profileStep: 4,
       isVerified: true,
       workExperience: [
@@ -49,7 +50,7 @@ const MOCK_DEVELOPERS = [
     },
   },
   {
-    email: 'marcus.johnson@felovy.dev',
+    email: 'marcus.johnson@outlook.com',
     profile: {
       fullName: 'Marcus Johnson',
       title: 'Mobile Developer',
@@ -59,8 +60,9 @@ const MOCK_DEVELOPERS = [
       github: 'https://github.com/marcusj',
       summary:
         'Mobile-first engineer with deep expertise in React Native and Flutter. Built apps with 1M+ downloads on both App Store and Google Play.',
+      birthYear: 1996,
       skills: ['React Native', 'Flutter', 'Swift', 'Kotlin', 'Firebase'],
-      languages: ['English', 'Spanish'],
+      languages: [{ name: 'English', level: 'Native' }, { name: 'Spanish', level: 'B2' }],
       profileStep: 4,
       isVerified: false,
       workExperience: [
@@ -85,18 +87,19 @@ const MOCK_DEVELOPERS = [
     },
   },
   {
-    email: 'sara.petrov@felovy.dev',
+    email: 'sara.petrov@gmx.de',
     profile: {
       fullName: 'Sara Petrov',
       title: 'Backend Engineer',
       country: 'Germany',
-      location: 'Berlin, Germany',
+      location: 'Berlin',
       phone: '+49 30 000 0003',
       linkedin: 'https://linkedin.com/in/sarapetrov',
       summary:
         'Backend specialist focused on distributed systems and high-throughput APIs. Comfortable owning the full lifecycle from design to production monitoring.',
+      birthYear: 1995,
       skills: ['Python', 'Django', 'FastAPI', 'Redis', 'Kafka', 'Kubernetes'],
-      languages: ['English', 'German', 'Russian'],
+      languages: [{ name: 'English', level: 'C1' }, { name: 'German', level: 'Native' }, { name: 'Russian', level: 'B2' }],
       profileStep: 3,
       isVerified: false,
       workExperience: [
@@ -121,19 +124,20 @@ const MOCK_DEVELOPERS = [
     },
   },
   {
-    email: 'david.kim@felovy.dev',
+    email: 'david.kim@icloud.com',
     profile: {
       fullName: 'David Kim',
       title: 'Frontend Developer',
       country: 'South Korea',
-      location: 'Seoul, South Korea',
+      location: 'Seoul',
       phone: '+82 2 000 0004',
       linkedin: 'https://linkedin.com/in/davidkim-dev',
       github: 'https://github.com/davidkim',
       summary:
         'UI-focused developer who cares deeply about accessibility, performance, and pixel-perfect design. Bridging the gap between design and engineering.',
+      birthYear: 1997,
       skills: ['Vue.js', 'Nuxt', 'React', 'Tailwind CSS', 'Figma', 'WebGL'],
-      languages: ['Korean', 'English', 'Japanese'],
+      languages: [{ name: 'Korean', level: 'Native' }, { name: 'English', level: 'C1' }, { name: 'Japanese', level: 'B2' }],
       profileStep: 4,
       isVerified: true,
       workExperience: [
@@ -158,18 +162,19 @@ const MOCK_DEVELOPERS = [
     },
   },
   {
-    email: 'aisha.okonkwo@felovy.dev',
+    email: 'aisha.okonkwo@proton.me',
     profile: {
       fullName: 'Aisha Okonkwo',
       title: 'DevOps Engineer',
       country: 'Nigeria',
-      location: 'Lagos, Nigeria',
+      location: 'Lagos',
       phone: '+234 1 000 0005',
       linkedin: 'https://linkedin.com/in/aishaokonkwo',
       summary:
         'DevOps engineer passionate about cloud-native infrastructure and developer productivity. I automate everything that can be automated.',
+      birthYear: 1998,
       skills: ['AWS', 'Terraform', 'Kubernetes', 'GitHub Actions', 'Prometheus', 'Go'],
-      languages: ['English', 'Yoruba'],
+      languages: [{ name: 'English', level: 'Native' }, { name: 'Yoruba', level: 'Native' }],
       profileStep: 2,
       isVerified: false,
       workExperience: [
@@ -207,11 +212,15 @@ async function main() {
 
     await prisma.developer.upsert({
       where:  { userId: user.id },
-      update: { country: mock.profile.country },
+      update: {
+        country: mock.profile.country,
+        location: mock.profile.location,
+      },
       create: {
         userId:         user.id,
         fullName:       mock.profile.fullName,
         title:          mock.profile.title,
+        birthYear:      mock.profile.birthYear ?? null,
         country:        mock.profile.country,
         location:       mock.profile.location,
         phone:          mock.profile.phone,

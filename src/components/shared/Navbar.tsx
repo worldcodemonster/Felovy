@@ -1,12 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/auth.store';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { FelovyLogo } from '@/components/shared/FelovyLogo';
 import { api } from '@/lib/api';
 import { LogOut, Users, Building2, Briefcase, MessageSquare } from 'lucide-react';
 import { Breadcrumb } from './Breadcrumb';
@@ -62,12 +62,12 @@ export function Navbar() {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 w-full border-b border-transparent bg-transparent backdrop-blur-sm">
+      <header className="fixed inset-x-0 top-0 z-50 w-full bg-white/60 backdrop-blur-sm border-b border-gray-200/35 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
         <div className="container mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Felovy" width={30} height={30} className="rounded-lg" />
-            <span className="text-lg font-bold gradient-text">Felovy</span>
+          <Link href="/" className="flex items-center gap-3">
+            <FelovyLogo size={24} />
+            <span className="text-lg font-bold text-felovy-purple">Felovy</span>
           </Link>
 
           {/* Nav links */}
@@ -99,8 +99,8 @@ export function Navbar() {
                       href={item.href}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                         active
-                          ? 'text-felovy-red bg-felovy-light'
-                          : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'
+                          ? 'text-felovy-ink bg-felovy-fill border border-felovy-ink'
+                          : 'text-gray-500 hover:text-gray-800 hover:bg-felovy-light/50 border border-transparent'
                       }`}
                     >
                       <item.icon className="h-4 w-4" />
@@ -149,7 +149,7 @@ export function Navbar() {
         </div>
       </header>
       <div className="h-14" />
-      <Breadcrumb excludePrefix="/dashboard/owner" />
+      {isAuthenticated && <Breadcrumb excludePrefix="/dashboard/owner" />}
     </>
   );
 }

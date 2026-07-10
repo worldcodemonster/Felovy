@@ -272,7 +272,7 @@ export function FloatingAIGuide() {
               type="button"
               onClick={() => send(input)}
               disabled={!input.trim() || typing}
-              className="h-8 w-8 rounded-xl bg-gradient-to-br from-felovy-red to-felovy-pink text-white flex items-center justify-center disabled:opacity-40 hover:shadow-lg hover:shadow-rose-200 transition-all"
+              className="h-8 w-8 rounded-xl bg-gradient-to-br from-felovy-red to-felovy-pink text-white flex items-center justify-center disabled:opacity-40 hover:shadow-lg hover:shadow-green-200 transition-all"
             >
               <Send className="h-3.5 w-3.5" />
             </button>

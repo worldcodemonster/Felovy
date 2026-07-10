@@ -4,12 +4,17 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { HOME_IMAGE_QUALITY, HOME_IMAGE_SIZES } from '@/lib/home-image';
+import {
+  DeveloperPortraitColorGrad,
+  DeveloperPortraitTextScrim,
+} from '@/components/home/DeveloperPortraitGradients';
 
 interface Person {
   src: string;
   name: string;
   role: string;
   country: string;
+  place?: string;
   grad: string;
   quote?: string;
 }
@@ -130,21 +135,15 @@ export function DeveloperCarousel({
                   sizes={HOME_IMAGE_SIZES.developerCard}
                 />
 
-                <div
-                  className={cn(
-                    'absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t opacity-90',
-                    person.grad,
-                    'to-transparent',
-                  )}
-                />
+                <DeveloperPortraitColorGrad grad={person.grad} />
 
-                <div className="absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black/50 via-black/15 to-transparent" />
+                <DeveloperPortraitTextScrim />
               </div>
 
               <div className="absolute bottom-0 left-0 right-0 p-3 z-10">
                 <p className="font-bold text-white text-lg md:text-xl leading-tight">{person.name}</p>
                 <p className="text-white text-sm md:text-base mt-0.5 font-semibold">{person.role}</p>
-                <p className="text-white/65 text-xs mt-0.5">{person.country}</p>
+                <p className="text-white/65 text-xs mt-0.5">{person.place || person.country}</p>
               </div>
             </article>
           );

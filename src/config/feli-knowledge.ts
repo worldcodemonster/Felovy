@@ -22,7 +22,7 @@ We are remote-first. Developers and employers collaborate across time zones. The
 
 Felovy is NOT a generic freelance gig marketplace with anonymous profiles. It is structured around real jobs, verified identities, and professional software outsourcing — from AI/ML and web/mobile to cloud, security, games, design, QA, and AI data labeling.
 
-Brand colors: primary rose/red (#e11d48). The site feels clean, modern, white-background sections, with Storyset Rafiki-style illustrations on the homepage.
+Brand colors: primary green (#15803d, leaf logo #66b38c). The site feels clean, modern, white-background sections, with Storyset Rafiki-style illustrations on the homepage.
 
 ═══════════════════════════════════════════════════════════════════════════════
 PART 2 — WHO FELOVY IS FOR

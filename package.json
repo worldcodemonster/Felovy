@@ -24,7 +24,8 @@
     "client-testimonials:sync": "node scripts/sync-client-testimonials.mjs",
     "workplace-images:fetch": "node scripts/fetch-workplace-images.mjs",
     "homepage-images:compress": "node scripts/compress-homepage-images.mjs",
-    "devicons:generate": "node scripts/generate-devicon-stacks.mjs"
+    "devicons:generate": "node scripts/generate-devicon-stacks.mjs",
+    "linkedin-banner:generate": "node scripts/generate-linkedin-banner.mjs"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

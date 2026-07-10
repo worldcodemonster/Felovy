@@ -3,102 +3,29 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/auth.store';
 import { Navbar } from '@/components/shared/Navbar';
+import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
 import { Developer } from '@/types';
-import { countryToFlagUrl } from '@/lib/countries';
-import {
-  SkillChip, CompletionBar, DeveloperCardSkeleton,
-  FilterBar, Pagination,
-} from '@/app/dashboard/owner/_shared';
-import { GenderAvatar } from '@/components/shared/GenderAvatar';
+import { FilterBar, Pagination } from '@/app/dashboard/owner/_shared';
+import { DeveloperPortraitCard } from '@/components/home/DeveloperPortraitCard';
+import { CAROUSEL_GRADS } from '@/lib/developer-carousel';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Users } from 'lucide-react';
 
-// ─── Public developer card ────────────────────────────────────────────────────
-
-function PublicDeveloperCard({ dev }: { dev: Developer }) {
-  const router = useRouter();
-  const name = dev.fullName || 'Developer';
-
+function DeveloperPortraitCardSkeleton() {
   return (
-    <div
-      className="relative group cursor-pointer hover:-translate-y-1.5 transition-all duration-250"
-      onClick={() => router.push(`/developers/${dev.id}`)}
-    >
-      <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] flex flex-col overflow-hidden border border-gray-200/70 hover:shadow-[0_12px_40px_rgba(0,0,0,0.13)]">
-
-        {/* Header */}
-        <div className="flex flex-col items-center px-6 pt-8 pb-5">
-          <div className="rounded-full shadow-[0_4px_16px_rgba(0,0,0,0.14)] ring-1 ring-white overflow-hidden mb-3">
-            <GenderAvatar src={dev.photoUrl} name={name} gender={dev.gender} size={88} />
-          </div>
-
-          <Link
-            href={`/developers/${dev.id}`}
-            className="group/name mt-1 text-center"
-            onClick={e => e.stopPropagation()}
-          >
-            <h3 className="text-[17px] font-bold text-gray-900 group-hover/name:text-felovy-red transition-colors leading-tight line-clamp-1">
-              {name}
-            </h3>
-          </Link>
-
-          {dev.title ? (
-            <p className="text-[13px] text-gray-500 mt-1 line-clamp-1 text-center">{dev.title}</p>
-          ) : (
-            <p className="text-[13px] text-gray-400 mt-1">Developer</p>
-          )}
-
-          {(dev.country || dev.location) && (
-            <div className="flex items-center gap-1.5 mt-2.5 text-[12px] text-gray-500 max-w-[180px]">
-              {dev.country && countryToFlagUrl(dev.country) && (
-                <img
-                  src={countryToFlagUrl(dev.country)}
-                  alt={dev.country}
-                  width={20}
-                  height={15}
-                  className="rounded-[2px] object-cover shadow-sm shrink-0"
-                />
-              )}
-              <span className="line-clamp-1">{dev.location || dev.country}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Body */}
-        <div className="px-6 pb-5 flex flex-col gap-4 flex-1">
-          <CompletionBar step={dev.profileStep} total={4} />
-
-          {dev.summary && (
-            <p className="text-[12px] text-gray-400 leading-[1.7] line-clamp-2">
-              {dev.summary}
-            </p>
-          )}
-
-          {dev.skills.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {dev.skills.slice(0, 4).map(s => <SkillChip key={s} label={s} />)}
-              {dev.skills.length > 4 && (
-                <span className="text-[11px] text-gray-400 self-center font-medium">
-                  +{dev.skills.length - 4} more
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-
-      </div>
-    </div>
+    <div className="w-full aspect-[170/240] rounded-xl bg-gray-200 animate-pulse shadow-md shadow-gray-200/80" />
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+const LIMIT = 30;
 
-const LIMIT = 12;
+const GRID_CLASS = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4';
 
 export default function DevelopersPage() {
+  const { isAuthenticated } = useAuthStore();
   const [page,    setPage]    = useState(1);
   const [search,  setSearch]  = useState('');
   const [country, setCountry] = useState('');
@@ -117,11 +44,36 @@ export default function DevelopersPage() {
       if (!r.ok) throw new Error(`${r.status}`);
       return r.json() as Promise<{ developers: Developer[]; total: number }>;
     },
+    enabled: isAuthenticated,
     placeholderData: prev => prev,
   });
 
   const devs  = data?.developers ?? [];
   const total = data?.total ?? 0;
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50/60">
+        <Navbar />
+        <div className="container mx-auto max-w-7xl px-4 py-8">
+          <EmptyState
+            illustration="auth-developer"
+            title="Sign in to see the developer list"
+            description="Create a free account or sign in to browse verified developers on Felovy."
+          >
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <Link href="/signin?redirect=/developers">
+                <Button variant="gradient">Sign In</Button>
+              </Link>
+              <Link href="/signup">
+                <Button variant="outline">Create Free Account</Button>
+              </Link>
+            </div>
+          </EmptyState>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50/60">
@@ -141,8 +93,8 @@ export default function DevelopersPage() {
         />
 
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-            {Array.from({ length: LIMIT }).map((_, i) => <DeveloperCardSkeleton key={i} />)}
+          <div className={GRID_CLASS}>
+            {Array.from({ length: LIMIT }).map((_, i) => <DeveloperPortraitCardSkeleton key={i} />)}
           </div>
         ) : isError ? (
           <div className="flex flex-col items-center justify-center py-24 text-gray-400 gap-2">
@@ -157,8 +109,20 @@ export default function DevelopersPage() {
           />
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              {devs.map(dev => <PublicDeveloperCard key={dev.id} dev={dev} />)}
+            <div className={GRID_CLASS}>
+              {devs.map((dev, i) => (
+                <DeveloperPortraitCard
+                  key={dev.id}
+                  id={dev.id}
+                  name={dev.fullName || 'Developer'}
+                  title={dev.title}
+                  location={dev.location}
+                  country={dev.country}
+                  photoUrl={dev.photoUrl}
+                  gender={dev.gender}
+                  grad={CAROUSEL_GRADS[i % CAROUSEL_GRADS.length]}
+                />
+              ))}
             </div>
             <Pagination
               page={page}

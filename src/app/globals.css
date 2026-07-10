@@ -10,8 +10,8 @@
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 346.8 77.2% 49.8%;
-    --primary-foreground: 355.7 100% 97.3%;
+    --primary: 142 71% 29%;
+    --primary-foreground: 138 76% 97%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
     --muted: 240 4.8% 95.9%;
@@ -20,9 +20,9 @@
     --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 346.8 77.2% 49.8%;
+    --border: 0 0% 7%;
+    --input: 0 0% 7%;
+    --ring: 142 71% 29%;
     --radius: 0.75rem;
   }
 }
@@ -48,12 +48,45 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Felovy gradient text */
+/* Felovy brand text — green fill, dark outline (logo style) */
+.brand-text {
+  color: #66b38c;
+  -webkit-text-stroke: 0.85px #111111;
+  paint-order: stroke fill;
+}
+
+/* Legacy alias */
 .gradient-text {
-  background: linear-gradient(135deg, #e11d48, #a855f7);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #66b38c;
+  -webkit-text-stroke: 0.85px #111111;
+  paint-order: stroke fill;
+}
+
+/* Hero world map headline — darker green for readability on the map */
+.hero-map-label {
+  color: #15803d;
+  -webkit-text-stroke: 0.85px #111111;
+  paint-order: stroke fill;
+}
+
+/* Green surface + dark outline (buttons, chips, panels) */
+.brand-outline {
+  border: 1px solid #111111;
+}
+
+@layer components {
+  .ui-chip {
+    @apply rounded-full border px-3 py-1.5 text-xs font-medium transition-all;
+  }
+  .ui-chip-active {
+    @apply ui-chip border-felovy-ink bg-felovy-fill text-felovy-ink;
+  }
+  .ui-chip-inactive {
+    @apply ui-chip border-felovy-ink/25 text-gray-600 bg-white hover:border-felovy-ink;
+  }
+  .ui-panel {
+    @apply rounded-xl border border-felovy-ink bg-white;
+  }
 }
 
 /* Felovy gradient bg */
@@ -64,8 +97,8 @@
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #ffffff; }
-::-webkit-scrollbar-thumb { background: #fda4af; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #e11d48; }
+::-webkit-scrollbar-thumb { background: #86efac; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #15803d; }
 
 /* ─── Scroll-reveal animations ─────────────────────────────────────────────── */
 
@@ -131,15 +164,15 @@
 .ai-orb-sphere {
   background: radial-gradient(
     circle at 33% 28%,
-    #ff8fab 0%,
-    #e11d48 45%,
-    #7f1d32 100%
+    #86efac 0%,
+    #22c55e 45%,
+    #14532d 100%
   );
   box-shadow:
     inset -10px -10px 22px rgba(0, 0, 0, 0.38),
     inset 6px 6px 14px rgba(255, 255, 255, 0.28),
-    0 14px 55px rgba(225, 29, 72, 0.5),
-    0 0 0 1px rgba(225, 29, 72, 0.25);
+    0 14px 55px rgba(21, 128, 61, 0.45),
+    0 0 0 1px rgba(21, 128, 61, 0.25);
   border-radius: 50%;
 }
 
@@ -165,7 +198,7 @@
   100% { background-position: -200% center; }
 }
 .text-shimmer {
-  background: linear-gradient(90deg, #e11d48 0%, #a855f7 30%, #e11d48 60%, #3b82f6 80%, #e11d48 100%);
+  background: linear-gradient(90deg, #15803d 0%, #22c55e 30%, #15803d 60%, #4ade80 80%, #15803d 100%);
   background-size: 300% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -395,7 +428,7 @@
 /* ─── Smooth gradient split ──────────────────────────────────────────────────── */
 
 .split-section {
-  background: linear-gradient(135deg, #fff1f2 0%, #fdf4ff 50%, #eff6ff 100%);
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 50%, #eff6ff 100%);
 }
 
 /* ─── Bento card ─────────────────────────────────────────────────────────────── */

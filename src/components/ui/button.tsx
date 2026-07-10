@@ -4,17 +4,17 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all duration-200 border border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-felovy-ink focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        default: 'bg-felovy-red text-white hover:bg-felovy-pink shadow-md hover:shadow-lg hover:-translate-y-0.5',
-        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        outline: 'border border-felovy-red text-felovy-red bg-transparent hover:bg-felovy-light',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-felovy-red underline-offset-4 hover:underline',
-        gradient: 'bg-gradient-to-r from-felovy-red to-felovy-purple text-white hover:opacity-90 shadow-md',
+        default: 'bg-felovy-fill text-felovy-ink border-felovy-ink hover:bg-felovy-pink hover:border-felovy-ink shadow-sm hover:shadow-md hover:-translate-y-0.5',
+        destructive: 'bg-destructive text-destructive-foreground border-felovy-ink hover:bg-destructive/90',
+        outline: 'border-felovy-ink text-felovy-ink bg-white hover:bg-felovy-light',
+        secondary: 'border-felovy-ink bg-white text-felovy-ink hover:bg-felovy-light',
+        ghost: 'hover:bg-felovy-light/60 hover:border-felovy-ink/20',
+        link: 'text-felovy-red underline-offset-4 hover:underline border-transparent',
+        gradient: 'bg-felovy-fill text-felovy-ink border-felovy-ink hover:bg-felovy-pink hover:border-felovy-ink shadow-sm hover:opacity-95',
       },
       size: {
         default: 'h-10 px-5 py-2.5',

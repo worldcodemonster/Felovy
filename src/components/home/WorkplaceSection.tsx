@@ -71,7 +71,7 @@ export function WorkplaceSection() {
                   data-delay={String(groupIndex * 80)}
                   className="flex items-start gap-3 mb-5 md:mb-6"
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-pink-50 text-felovy-pink">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-50 text-felovy-pink">
                     <Icon className="h-5 w-5" strokeWidth={1.75} />
                   </div>
                   <div>

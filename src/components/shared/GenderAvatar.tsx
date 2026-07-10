@@ -39,20 +39,37 @@ export function GenderAvatar({
   name,
   gender,
   size = 88,
+  variant = 'circle',
+  className,
 }: {
   src?: string | null;
   name: string;
   gender?: string | null;
   size?: number;
+  variant?: 'circle' | 'cover';
+  className?: string;
 }) {
+  const shapeClass = variant === 'cover' ? 'rounded-none' : 'rounded-full';
+
   if (src) {
+    if (variant === 'cover') {
+      return (
+        <Image
+          src={src}
+          alt={name}
+          fill
+          className={`object-cover ${className ?? ''}`}
+          sizes="(max-width: 768px) 100vw, 320px"
+        />
+      );
+    }
     return (
       <Image
         src={src}
         alt={name}
         width={size}
         height={size}
-        className="rounded-full object-cover"
+        className={`${shapeClass} object-cover ${className ?? ''}`}
         style={{ width: size, height: size }}
       />
     );
@@ -62,9 +79,16 @@ export function GenderAvatar({
 
   if (cfg) {
     const iconSize = Math.round(size * 0.56);
+    if (variant === 'cover') {
+      return (
+        <div className={`absolute inset-0 ${cfg.gradient} flex items-center justify-center ${className ?? ''}`}>
+          <div style={{ width: iconSize, height: iconSize }}>{cfg.icon}</div>
+        </div>
+      );
+    }
     return (
       <div
-        className={`rounded-full ${cfg.gradient} flex items-center justify-center`}
+        className={`${shapeClass} ${cfg.gradient} flex items-center justify-center ${className ?? ''}`}
         style={{ width: size, height: size }}
       >
         <div style={{ width: iconSize, height: iconSize }}>{cfg.icon}</div>
@@ -75,9 +99,16 @@ export function GenderAvatar({
   // Fallback: initial letter
   const initial = (name[0] ?? '?').toUpperCase();
   const fontSize = size >= 80 ? 'text-3xl' : 'text-base';
+  if (variant === 'cover') {
+    return (
+      <div className={`absolute inset-0 bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 flex items-center justify-center text-white font-black select-none text-4xl ${className ?? ''}`}>
+        {initial}
+      </div>
+    );
+  }
   return (
     <div
-      className={`rounded-full bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 flex items-center justify-center text-white font-black select-none ${fontSize}`}
+      className={`${shapeClass} bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 flex items-center justify-center text-white font-black select-none ${fontSize} ${className ?? ''}`}
       style={{ width: size, height: size }}
     >
       {initial}

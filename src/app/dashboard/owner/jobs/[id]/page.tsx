@@ -69,11 +69,11 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
         {/* Header card */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="h-1 w-full bg-gradient-to-r from-felovy-red via-rose-400 to-pink-400" />
+          <div className="h-1 w-full bg-gradient-to-r from-felovy-red via-felovy-rose to-felovy-pink" />
           <div className="p-6">
             <div className="flex items-start gap-4">
               {/* Logo */}
-              <div className="shrink-0 h-14 w-14 rounded-xl overflow-hidden ring-1 ring-gray-200 shadow-sm flex items-center justify-center bg-gradient-to-br from-felovy-red to-pink-500">
+              <div className="shrink-0 h-14 w-14 rounded-xl overflow-hidden ring-1 ring-gray-200 shadow-sm flex items-center justify-center bg-gradient-to-br from-felovy-red to-felovy-pink">
                 {job.employer?.companyLogoUrl ? (
                   <img src={job.employer.companyLogoUrl} alt={job.employer.companyName ?? ''} className="h-full w-full object-cover" />
                 ) : (
@@ -143,7 +143,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 <h2 className="text-xs font-bold text-felovy-red uppercase tracking-widest mb-3">Required Skills</h2>
                 <div className="flex flex-wrap gap-2">
                   {job.requiredSkills.map(s => (
-                    <span key={s} className="px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-felovy-red to-pink-500 text-white shadow-sm">
+                    <span key={s} className="px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-felovy-red to-felovy-pink text-white shadow-sm">
                       {s}
                     </span>
                   ))}

@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/components/ui/toaster';
 import { api } from '@/lib/api';
 import { Developer } from '@/types';
-import { Users } from 'lucide-react';
+import { Users, Bot, Trash2 } from 'lucide-react';
+import Link from 'next/link';
 import {
-  STATUS_MAP, DeveloperCard, DeveloperCardSkeleton, FilterBar, Pagination,
+  STATUS_MAP, DeveloperCard, DeveloperCardSkeleton, FilterBar, Pagination, ConfirmDialog,
 } from '../_shared';
 
 export default function DevelopersPage() {
@@ -17,6 +18,8 @@ export default function DevelopersPage() {
   const [filter, setFilter] = useState('');
   const [status, setStatus] = useState('');
   const [country, setCountry] = useState('');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [confirmRemove, setConfirmRemove] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['owner-devs', page, search, filter, status, country],
@@ -30,6 +33,38 @@ export default function DevelopersPage() {
       return r.json() as Promise<{ developers: Developer[]; total: number }>;
     },
   });
+
+  const pageIds = useMemo(
+    () => data?.developers.map(d => d.id) ?? [],
+    [data?.developers],
+  );
+  const allOnPageSelected = pageIds.length > 0 && pageIds.every(id => selectedIds.has(id));
+  const selectedCount = selectedIds.size;
+
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [page, search, filter, status, country]);
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAllOnPage = () => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (allOnPageSelected) {
+        pageIds.forEach(id => next.delete(id));
+      } else {
+        pageIds.forEach(id => next.add(id));
+      }
+      return next;
+    });
+  };
 
   const { mutate: verify } = useMutation({
     mutationFn: ({ id, approved }: { id: string; approved: boolean }) =>
@@ -76,8 +111,34 @@ export default function DevelopersPage() {
     onSettled: () => qc.invalidateQueries({ queryKey: ['owner-devs'] }),
   });
 
+  const { mutate: removeSelected, isPending: removing } = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const res = await api.post('/owner/developers/delete', { developerIds: ids });
+      if (!res.ok) throw new Error((await res.json()).message || 'Delete failed');
+      return res.json() as Promise<{ deleted: number; message: string }>;
+    },
+    onSuccess: (result) => {
+      setSelectedIds(new Set());
+      setConfirmRemove(false);
+      toast({ title: result.message });
+      qc.invalidateQueries({ queryKey: ['owner-devs'] });
+    },
+    onError: (err: Error) => {
+      toast({ title: err.message, variant: 'destructive' });
+    },
+  });
+
   return (
     <div>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <Link
+          href="/dashboard/owner/developers/bot"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-felovy-red hover:underline"
+        >
+          <Bot className="h-4 w-4" />
+          Developer Bot
+        </Link>
+      </div>
       <FilterBar
         icon={Users}
         title="Developers"
@@ -96,6 +157,43 @@ export default function DevelopersPage() {
         onCountry={v => { setCountry(v); setPage(1); }}
       />
 
+      {!!data?.developers.length && (
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4 px-1">
+          <label className="inline-flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={allOnPageSelected}
+              onChange={toggleSelectAllOnPage}
+              className="h-4 w-4 rounded border-gray-300 accent-felovy-red"
+            />
+            Select all on page
+            {selectedCount > 0 && (
+              <span className="text-gray-400">({selectedCount} selected)</span>
+            )}
+          </label>
+          {selectedCount > 0 && (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedIds(new Set())}
+                className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
+              >
+                Clear
+              </button>
+              <button
+                type="button"
+                disabled={removing}
+                onClick={() => setConfirmRemove(true)}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 disabled:opacity-60 px-3.5 py-2 rounded-xl shadow-sm shadow-red-200 transition-colors"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Remove {selectedCount}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {Array.from({ length: 8 }).map((_, i) => <DeveloperCardSkeleton key={i} />)}
@@ -112,6 +210,8 @@ export default function DevelopersPage() {
               <DeveloperCard
                 key={dev.id}
                 dev={dev}
+                selected={selectedIds.has(dev.id)}
+                onToggleSelect={toggleSelect}
                 onVerify={(id, approved) => verify({ id, approved })}
                 onModerate={(userId, action) => moderate({ userId, action })}
               />
@@ -119,6 +219,16 @@ export default function DevelopersPage() {
           </div>
           <Pagination page={page} total={data.total} limit={12} onChange={setPage} />
         </>
+      )}
+
+      {confirmRemove && (
+        <ConfirmDialog
+          title={`Remove ${selectedCount} developer${selectedCount === 1 ? '' : 's'}?`}
+          desc="This permanently deletes the selected accounts and all their data. This cannot be undone."
+          destructive
+          onCancel={() => setConfirmRemove(false)}
+          onConfirm={() => removeSelected(Array.from(selectedIds))}
+        />
       )}
     </div>
   );

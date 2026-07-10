@@ -8,9 +8,9 @@
  */
 
 export const STORYSET_STYLE = 'rafiki' as const;
-/** Illustration accents: Felovy brand red — see scripts/storyset-recolor.mjs */
-export const STORYSET_BRAND_ACCENT = '#e11d48';
-export const STORYSET_BRAND_ACCENT_DARK = '#be123c';
+/** Illustration accents: Felovy brand green — see scripts/storyset-recolor.mjs */
+export const STORYSET_BRAND_ACCENT = '#15803d';
+export const STORYSET_BRAND_ACCENT_DARK = '#166534';
 export const STORYSET_ATTRIBUTION_URL = 'https://storyset.com/';
 
 const BASE = '/illustrations/storyset';

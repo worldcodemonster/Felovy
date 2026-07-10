@@ -33,8 +33,8 @@ function hexToRgb(hex: string) {
 export function AnimatedSectionBg({
   variant,
   opacity = 0.05,
-  color = '#e11d48',
-  secondary = '#a855f7',
+  color = '#15803d',
+  secondary = '#22c55e',
   className = '',
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

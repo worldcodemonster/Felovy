@@ -563,7 +563,7 @@ export default function WorldMap({ mode = 'section' }: { mode?: 'section' | 'her
 
         <div className="flex items-center justify-center gap-6 mb-6">
           {[
-            { color: '#e11d48', label: 'Developers' },
+            { color: '#22c55e', label: 'Developers' },
             { color: '#10b981', label: 'Companies'  },
             { color: '#38bdf8', label: 'Jobs'        },
           ].map(({ color, label }) => (
@@ -621,7 +621,7 @@ export default function WorldMap({ mode = 'section' }: { mode?: 'section' | 'her
               {devMarkers.map(({ name, coordinates, count }) => (
                 <Marker key={`dev-${name}`} coordinates={coordinates}>
                   <circle r={Math.min(3 + count * 0.5, 7) + 3} fill="rgba(225,29,72,0.1)" />
-                  <circle r={Math.min(3 + count * 0.5, 7)} fill="#e11d48" stroke="#fff" strokeWidth={0.8} />
+                  <circle r={Math.min(3 + count * 0.5, 7)} fill="#22c55e" stroke="#fff" strokeWidth={0.8} />
                 </Marker>
               ))}
 
