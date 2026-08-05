@@ -131,7 +131,7 @@ export default function DeveloperDashboard() {
                             {app.status}
                           </Badge>
                           {app.conversation && (
-                            <Link href={`/dashboard/developer/messages/${app.conversation.id}`}>
+                            <Link href={`/dashboard/developer/messages?c=${app.conversation.id}`}>
                               <MessageSquare className="h-4 w-4 text-felovy-red" />
                             </Link>
                           )}

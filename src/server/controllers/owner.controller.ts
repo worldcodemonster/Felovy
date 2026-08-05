@@ -127,54 +127,64 @@ export const listAllDevelopers = async (req: AuthRequest, res: Response): Promis
 // ─── List all employers ───────────────────────────────────────────────────────
 
 export const listAllEmployers = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { page = '1', limit = '20', verified, search, status, country, isBot } = req.body;
-  const skip = (Number(page) - 1) * Number(limit);
-  const where: any = {};
-  if (verified !== undefined && verified !== '') where.isVerified = verified === 'true';
-  if (isBot !== undefined && isBot !== '') where.isBot = isBot === 'true';
-  if (country) where.country = String(country);
-  if (status) where.user = { status: String(status) };
-  if (search) where.OR = [
-    { companyName: { contains: String(search), mode: 'insensitive' } },
-    { user: { email: { contains: String(search), mode: 'insensitive' } } },
-  ];
+  try {
+    const { page = '1', limit = '20', verified, search, status, country, isBot } = req.body;
+    const skip = (Number(page) - 1) * Number(limit);
+    const where: any = {};
+    if (verified !== undefined && verified !== '') where.isVerified = verified === 'true';
+    if (isBot !== undefined && isBot !== '') where.isBot = isBot === 'true';
+    if (country) where.country = String(country);
+    if (status) where.user = { status: String(status) };
+    if (search) where.OR = [
+      { companyName: { contains: String(search), mode: 'insensitive' } },
+      { user: { email: { contains: String(search), mode: 'insensitive' } } },
+    ];
 
-  const [employers, total] = await Promise.all([
-    prisma.employer.findMany({
-      where,
-      include: { user: { select: { email: true, status: true, createdAt: true } } },
-      skip,
-      take: Number(limit),
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.employer.count({ where }),
-  ]);
-  res.json({ employers, total, page: Number(page), limit: Number(limit) });
+    const [employers, total] = await Promise.all([
+      prisma.employer.findMany({
+        where,
+        include: { user: { select: { email: true, status: true, createdAt: true } } },
+        skip,
+        take: Number(limit),
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.employer.count({ where }),
+    ]);
+    res.json({ employers, total, page: Number(page), limit: Number(limit) });
+  } catch (err) {
+    console.error('[listAllEmployers]', err);
+    res.status(500).json({ message: 'Failed to load employers. The database may be unavailable or out of sync.' });
+  }
 };
 
 // ─── List all jobs (any status) ───────────────────────────────────────────────
 
 export const listAllJobs = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { page = '1', limit = '20', status, search } = req.body;
-  const skip = (Number(page) - 1) * Number(limit);
-  const where: any = {};
-  if (status) where.status = String(status);
-  if (search) where.title = { contains: String(search), mode: 'insensitive' };
+  try {
+    const { page = '1', limit = '20', status, search } = req.body;
+    const skip = (Number(page) - 1) * Number(limit);
+    const where: any = {};
+    if (status) where.status = String(status);
+    if (search) where.title = { contains: String(search), mode: 'insensitive' };
 
-  const [jobs, total] = await Promise.all([
-    prisma.job.findMany({
-      where,
-      include: {
-        employer: { select: { companyName: true, companyLogoUrl: true } },
-        _count: { select: { applications: true } },
-      },
-      skip,
-      take: Number(limit),
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.job.count({ where }),
-  ]);
-  res.json({ jobs, total, page: Number(page), limit: Number(limit) });
+    const [jobs, total] = await Promise.all([
+      prisma.job.findMany({
+        where,
+        include: {
+          employer: { select: { companyName: true, companyLogoUrl: true } },
+          _count: { select: { applications: true } },
+        },
+        skip,
+        take: Number(limit),
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.job.count({ where }),
+    ]);
+    res.json({ jobs, total, page: Number(page), limit: Number(limit) });
+  } catch (err) {
+    console.error('[listAllJobs]', err);
+    res.status(500).json({ message: 'Failed to load jobs. The database may be unavailable or out of sync.' });
+  }
 };
 
 // ─── Review / pin job ─────────────────────────────────────────────────────────

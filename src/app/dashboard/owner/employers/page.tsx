@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/components/ui/toaster';
 import { api } from '@/lib/api';
+import { useAuthStore } from '@/store/auth.store';
 import { Employer } from '@/types';
-import { Building2, UserPlus, Bot } from 'lucide-react';
+import { Building2, UserPlus, Bot, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import {
   STATUS_MAP, EmployerRow, EmployerTableSkeleton, FilterBar, Pagination,
@@ -13,13 +14,14 @@ import {
 
 export default function EmployersPage() {
   const qc = useQueryClient();
+  const { user, isAuthenticated } = useAuthStore();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('');
   const [status, setStatus] = useState('');
   const [country, setCountry] = useState('');
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ['owner-emps', page, search, filter, status, country],
     queryFn: async () => {
       const body: Record<string, unknown> = { page: String(page), limit: '12' };
@@ -28,8 +30,13 @@ export default function EmployersPage() {
       if (status)      body.status   = status;
       if (country)     body.country  = country;
       const r = await api.post('/owner/employers', body);
+      if (!r.ok) {
+        const errBody = await r.json().catch(() => ({})) as { message?: string };
+        throw new Error(errBody.message || `Request failed (${r.status})`);
+      }
       return r.json() as Promise<{ employers: Employer[]; total: number }>;
     },
+    enabled: isAuthenticated && user?.role === 'OWNER',
   });
 
   const { mutate: verify } = useMutation({
@@ -115,7 +122,19 @@ export default function EmployersPage() {
         onCountry={v => { setCountry(v); setPage(1); }}
       />
 
-      {!isLoading && !data?.employers.length ? (
+      {!isAuthenticated || user?.role !== 'OWNER' ? (
+        <div className="flex flex-col items-center justify-center py-24 text-gray-500 gap-3">
+          <AlertCircle className="h-10 w-10 text-amber-400" />
+          <p className="text-sm font-medium">Owner sign-in required</p>
+          <Link href="/signin" className="text-sm font-semibold text-felovy-red hover:underline">Go to sign in</Link>
+        </div>
+      ) : isError ? (
+        <div className="flex flex-col items-center justify-center py-24 text-gray-500 gap-3">
+          <AlertCircle className="h-10 w-10 text-red-400" />
+          <p className="text-sm font-medium">Could not load employers</p>
+          <p className="text-xs text-gray-400 max-w-md text-center">{(error as Error)?.message}</p>
+        </div>
+      ) : !isLoading && !data?.employers.length ? (
         <div className="flex flex-col items-center justify-center py-24 text-gray-400 gap-2">
           <Building2 className="h-10 w-10 text-gray-200" />
           <p className="text-sm">No employers found</p>

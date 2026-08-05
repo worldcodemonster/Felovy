@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 import { Navbar } from '@/components/shared/Navbar';
@@ -8,17 +8,19 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api';
 import { Conversation, Message } from '@/types';
-import { useAuthStore } from '@/store/auth.store';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Send, Loader2, MessageSquare, ArrowLeft } from 'lucide-react';
 import { timeAgo, cn } from '@/lib/utils';
-import Link from 'next/link';
 
 export default function DeveloperMessagesPage() {
-  const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const [activeConv, setActiveConv] = useState<string | null>(null);
   const [text, setText] = useState('');
+
+  useEffect(() => {
+    const convId = new URLSearchParams(window.location.search).get('c');
+    if (convId) setActiveConv(convId);
+  }, []);
 
   const { data: conversations } = useQuery({
     queryKey: ['conversations'],

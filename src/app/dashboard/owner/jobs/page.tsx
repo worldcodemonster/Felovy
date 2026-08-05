@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/toaster';
 import { api } from '@/lib/api';
+import { useAuthStore } from '@/store/auth.store';
 import { Job } from '@/types';
-import { Briefcase, Search, Pin, ToggleLeft, ToggleRight, ArrowUpRight, Check, X } from 'lucide-react';
+import { Briefcase, Search, Pin, ToggleLeft, ToggleRight, ArrowUpRight, Check, X, AlertCircle } from 'lucide-react';
 import { StatusBadge, Pagination } from '../_shared';
 
 const COLS = ['Job Title', 'Company', 'Type', 'Status', 'Apps', 'Posted', 'Actions'];
@@ -31,19 +32,25 @@ function formatDate(d: string) {
 
 export default function JobsPage() {
   const qc = useQueryClient();
+  const { user, isAuthenticated } = useAuthStore();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ['owner-jobs', page, search, statusFilter],
     queryFn: async () => {
       const body: Record<string, unknown> = { page: String(page), limit: '20' };
       if (search)       body.search = search;
       if (statusFilter) body.status = statusFilter;
       const r = await api.post('/owner/jobs', body);
+      if (!r.ok) {
+        const errBody = await r.json().catch(() => ({})) as { message?: string };
+        throw new Error(errBody.message || `Request failed (${r.status})`);
+      }
       return r.json() as Promise<{ jobs: Job[]; total: number }>;
     },
+    enabled: isAuthenticated && user?.role === 'OWNER',
   });
 
   const { mutate: updateJob } = useMutation({
@@ -75,6 +82,20 @@ export default function JobsPage() {
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+      {!isAuthenticated || user?.role !== 'OWNER' ? (
+        <div className="flex flex-col items-center justify-center py-24 text-gray-500 gap-3">
+          <AlertCircle className="h-10 w-10 text-amber-400" />
+          <p className="text-sm font-medium">Owner sign-in required</p>
+          <Link href="/signin" className="text-sm font-semibold text-felovy-red hover:underline">Go to sign in</Link>
+        </div>
+      ) : isError ? (
+        <div className="flex flex-col items-center justify-center py-24 text-gray-500 gap-3">
+          <AlertCircle className="h-10 w-10 text-red-400" />
+          <p className="text-sm font-medium">Could not load jobs</p>
+          <p className="text-xs text-gray-400 max-w-md text-center px-4">{(error as Error)?.message}</p>
+        </div>
+      ) : (
+      <>
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3 px-5 py-4 border-b border-gray-100">
         <div className="flex items-center gap-2 font-semibold text-gray-800 text-sm">
@@ -271,6 +292,8 @@ export default function JobsPage() {
         <div className="px-5 py-3 border-t border-gray-100">
           <Pagination page={page} total={data?.total ?? 0} limit={20} onChange={setPage} />
         </div>
+      )}
+      </>
       )}
     </div>
   );
