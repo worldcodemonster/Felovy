@@ -514,7 +514,7 @@ function parseBotEmployersBody(body: unknown):
   } = (body ?? {}) as {
     count?: number;
     countries?: string[];
-    verifiedStatuses?: boolean[];
+    verifiedStatuses?: (boolean | string)[];
     password?: string;
   };
 
