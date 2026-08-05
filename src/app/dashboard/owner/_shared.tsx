@@ -980,7 +980,14 @@ export function EmployerRow({
               )}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-gray-900 group-hover:text-felovy-red transition-colors truncate">{name}</p>
+              <p className="text-sm font-semibold text-gray-900 group-hover:text-felovy-red transition-colors truncate flex items-center gap-2">
+                {name}
+                {emp.isBot && (
+                  <span className="inline-flex items-center gap-0.5 bg-violet-600 text-white text-[9px] font-bold tracking-wider px-1.5 py-0.5 rounded-full uppercase shrink-0">
+                    <Bot className="h-2 w-2" /> Bot
+                  </span>
+                )}
+              </p>
               <p className="text-[11px] text-gray-400 truncate">{emp.user?.email}</p>
             </div>
           </div>

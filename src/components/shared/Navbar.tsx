@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/auth.store';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,12 @@ export function Navbar() {
   const { user, isAuthenticated, logout } = useAuthStore();
   const router   = useRouter();
   const pathname = usePathname() ?? '';
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  const authReady = mounted && isAuthenticated && user;
+  const isOwner = authReady && user.role === 'OWNER';
 
   const { data: devProfile } = useQuery({
     queryKey: ['developer-me'],
@@ -35,7 +42,7 @@ export function Navbar() {
       const res = await api.post('/developers/me', {});
       return res.json() as Promise<{ fullName?: string }>;
     },
-    enabled: user?.role === 'DEVELOPER',
+    enabled: mounted && user?.role === 'DEVELOPER',
   });
 
   const { data: empProfile } = useQuery({
@@ -44,7 +51,7 @@ export function Navbar() {
       const res = await api.post('/employers/me', {});
       return res.json() as Promise<{ companyName?: string; contactName?: string }>;
     },
-    enabled: user?.role === 'EMPLOYER',
+    enabled: mounted && user?.role === 'EMPLOYER',
   });
 
   const displayName = user?.role === 'DEVELOPER'
@@ -57,8 +64,6 @@ export function Navbar() {
     logout();
     router.push('/');
   };
-
-  const isOwner = isAuthenticated && user?.role === 'OWNER';
 
   return (
     <>
@@ -114,7 +119,9 @@ export function Navbar() {
 
           {/* Auth buttons */}
           <div className="flex items-center gap-3">
-            {isAuthenticated && user ? (
+            {!mounted ? (
+              <div className="h-8 w-28 rounded-lg bg-gray-100 animate-pulse" aria-hidden />
+            ) : authReady ? (
               <>
                 {displayName ? (
                   <Link
@@ -149,7 +156,7 @@ export function Navbar() {
         </div>
       </header>
       <div className="h-14" />
-      {isAuthenticated && <Breadcrumb excludePrefix="/dashboard/owner" />}
+      {authReady && <Breadcrumb excludePrefix="/dashboard/owner" />}
     </>
   );
 }

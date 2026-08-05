@@ -11,6 +11,10 @@ import {
   listPortraitProviders,
   syncBotDeveloperPasswords,
   syncDeveloperLocations,
+  createEmployer,
+  createEmployersBatch,
+  generateBotEmployersStream,
+  syncBotEmployerPasswords,
 } from '../controllers/owner.controller';
 
 const router = Router();
@@ -30,6 +34,10 @@ router.post('/developers/bot/home-carousel', asHandler(generateHomeCarouselBotsS
 router.post('/developers/bot', asHandler(generateBotDevelopers));
 router.post('/developers/bot/stream', asHandler(generateBotDevelopersStream));
 router.post('/employers', asHandler(listAllEmployers));
+router.post('/employers/create', asHandler(createEmployer));
+router.post('/employers/create/batch', asHandler(createEmployersBatch));
+router.post('/employers/bot/sync-passwords', asHandler(syncBotEmployerPasswords));
+router.post('/employers/bot/stream', asHandler(generateBotEmployersStream));
 router.post('/jobs', asHandler(listAllJobs));
 router.patch('/jobs/:id/review', asHandler(reviewJobOwner));
 router.post('/verify/developer', asHandler(verifyDeveloper));

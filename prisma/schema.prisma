@@ -146,6 +146,7 @@ model Employer {
   profileStep Int     @default(1)
   isVerified  Boolean @default(false)
   verifiedAt  DateTime?
+  isBot       Boolean @default(false)
 
   jobs          Job[]
   conversations Conversation[]

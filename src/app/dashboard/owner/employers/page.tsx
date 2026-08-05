@@ -5,7 +5,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/components/ui/toaster';
 import { api } from '@/lib/api';
 import { Employer } from '@/types';
-import { Building2 } from 'lucide-react';
+import { Building2, UserPlus, Bot } from 'lucide-react';
+import Link from 'next/link';
 import {
   STATUS_MAP, EmployerRow, EmployerTableSkeleton, FilterBar, Pagination,
 } from '../_shared';
@@ -78,6 +79,24 @@ export default function EmployersPage() {
 
   return (
     <div>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <Link
+            href="/dashboard/owner/employers/create"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-felovy-red hover:underline"
+          >
+            <UserPlus className="h-4 w-4" />
+            Create Employer
+          </Link>
+          <Link
+            href="/dashboard/owner/employers/bot"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-violet-600 hover:underline"
+          >
+            <Bot className="h-4 w-4" />
+            Company Bot
+          </Link>
+        </div>
+      </div>
       <FilterBar
         icon={Building2}
         title="Employers"

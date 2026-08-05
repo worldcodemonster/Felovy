@@ -20,7 +20,7 @@ import { Developer, WorkExperience, Education, DeveloperLanguage, CefrLevel } fr
 import { CEFR_LEVELS, parseDeveloperLanguages } from '@/lib/developer-profile';
 import {
   CheckCircle2, Upload, Camera, Loader2, Plus, X, ArrowLeft, ArrowRight, Save,
-  Eye, EyeOff, Mail, Lock, ShieldCheck,
+  Eye, EyeOff, Mail, Lock, ShieldCheck, Briefcase,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/auth.store';
@@ -172,14 +172,40 @@ function ProfilePageInner() {
   }, [profile, reset, goToStep, urlStep]);
 
   const { mutate: saveStep2, isPending: s2Loading } = useMutation({
-    mutationFn: (data: Step2Form) =>
-      api.put('/developers/me/step2', { ...data, skills, languages, workExperience: workExp, education }),
+    mutationFn: (data: Step2Form) => {
+      const partial = workExp.some(
+        w => (w.company.trim() || w.role.trim() || w.startDate.trim() || (w.description ?? '').trim())
+          && !(w.company.trim() && w.role.trim() && w.startDate.trim()),
+      );
+      if (partial) {
+        throw new Error('Each work entry needs a job title, company, and start date — or remove the empty entry.');
+      }
+
+      const cleanedWorkExp = workExp
+        .filter(w => w.company.trim() && w.role.trim() && w.startDate.trim())
+        .map(w => ({
+          company: w.company.trim(),
+          role: w.role.trim(),
+          startDate: w.startDate.trim(),
+          endDate: w.current ? undefined : (w.endDate?.trim() || undefined),
+          current: w.current,
+          description: w.description?.trim() || undefined,
+        }));
+
+      return api.put('/developers/me/step2', {
+        ...data,
+        skills,
+        languages,
+        workExperience: cleanedWorkExp,
+        education,
+      });
+    },
     onSuccess: () => {
       toast({ title: 'Profile saved!', description: 'Your personal info has been updated.' });
       queryClient.invalidateQueries({ queryKey: ['developer-me'] });
       goToStep(3);
     },
-    onError: () => toast({ title: 'Save failed', variant: 'destructive' }),
+    onError: (err: Error) => toast({ title: err.message || 'Save failed', variant: 'destructive' }),
   });
 
   const { mutate: saveStep3, isPending: s3Loading } = useMutation({
@@ -229,6 +255,30 @@ function ProfilePageInner() {
       setLanguages(l => [...l, { name, level: newLangLevel }]);
       setNewLang('');
     }
+  };
+
+  const emptyWorkExp = (): WorkExperience => ({
+    company: '',
+    role: '',
+    startDate: '',
+    endDate: '',
+    current: false,
+    description: '',
+  });
+
+  const addWorkExp = () => setWorkExp(w => [...w, emptyWorkExp()]);
+
+  const updateWorkExp = (index: number, patch: Partial<WorkExperience>) => {
+    setWorkExp(w => w.map((entry, i) => {
+      if (i !== index) return entry;
+      const next = { ...entry, ...patch };
+      if (patch.current) next.endDate = '';
+      return next;
+    }));
+  };
+
+  const removeWorkExp = (index: number) => {
+    setWorkExp(w => w.filter((_, i) => i !== index));
   };
 
   return (
@@ -540,6 +590,106 @@ function ProfilePageInner() {
                           </div>
                         ))}
                       </div>
+                    </div>
+
+                    {/* Work Experience */}
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <label className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                          <Briefcase className="h-4 w-4 text-gray-400" />
+                          Work Experience
+                        </label>
+                        <Button type="button" variant="outline" size="sm" onClick={addWorkExp} className="gap-1 h-8">
+                          <Plus className="h-3.5 w-3.5" /> Add role
+                        </Button>
+                      </div>
+
+                      {workExp.length === 0 ? (
+                        <p className="text-sm text-gray-400 rounded-lg border border-dashed border-gray-200 px-4 py-6 text-center">
+                          No work experience added yet. Click &quot;Add role&quot; to include your employment history.
+                        </p>
+                      ) : (
+                        <div className="space-y-4">
+                          {workExp.map((w, i) => (
+                            <div key={i} className="rounded-xl border border-gray-200 bg-gray-50/40 p-4 space-y-3">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                                  Role {i + 1}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => removeWorkExp(i)}
+                                  className="text-gray-400 hover:text-red-500 transition-colors"
+                                  aria-label="Remove work experience"
+                                >
+                                  <X className="h-4 w-4" />
+                                </button>
+                              </div>
+
+                              <div className="grid sm:grid-cols-2 gap-3">
+                                <div>
+                                  <label className="text-xs font-medium text-gray-600">Job title *</label>
+                                  <Input
+                                    value={w.role}
+                                    onChange={e => updateWorkExp(i, { role: e.target.value })}
+                                    placeholder="Senior React Developer"
+                                    className="mt-1"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs font-medium text-gray-600">Company *</label>
+                                  <Input
+                                    value={w.company}
+                                    onChange={e => updateWorkExp(i, { company: e.target.value })}
+                                    placeholder="Acme Inc."
+                                    className="mt-1"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs font-medium text-gray-600">Start date *</label>
+                                  <Input
+                                    type="month"
+                                    value={w.startDate}
+                                    onChange={e => updateWorkExp(i, { startDate: e.target.value })}
+                                    className="mt-1"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs font-medium text-gray-600">End date</label>
+                                  <Input
+                                    type="month"
+                                    value={w.endDate ?? ''}
+                                    onChange={e => updateWorkExp(i, { endDate: e.target.value })}
+                                    disabled={w.current}
+                                    className="mt-1 disabled:opacity-50"
+                                  />
+                                </div>
+                              </div>
+
+                              <label className="inline-flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={w.current}
+                                  onChange={e => updateWorkExp(i, { current: e.target.checked })}
+                                  className="rounded border-gray-300 accent-felovy-red"
+                                />
+                                I currently work here
+                              </label>
+
+                              <div>
+                                <label className="text-xs font-medium text-gray-600">Description</label>
+                                <textarea
+                                  value={w.description ?? ''}
+                                  onChange={e => updateWorkExp(i, { description: e.target.value })}
+                                  rows={3}
+                                  placeholder="What you built, technologies used, and impact…"
+                                  className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-felovy-red"
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex gap-3">

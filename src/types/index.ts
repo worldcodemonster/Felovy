@@ -88,6 +88,7 @@ export interface Employer {
   idCardUrl?: string;
   profileStep: number;
   isVerified: boolean;
+  isBot?: boolean;
   user?: Partial<User>;
 }
 

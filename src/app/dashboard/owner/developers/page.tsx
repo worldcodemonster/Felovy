@@ -5,7 +5,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/components/ui/toaster';
 import { api } from '@/lib/api';
 import { Developer } from '@/types';
-import { Users, Bot, Trash2 } from 'lucide-react';
+import { useAuthStore } from '@/store/auth.store';
+import { Users, Bot, Trash2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import {
   STATUS_MAP, DeveloperCard, DeveloperCardSkeleton, FilterBar, Pagination, ConfirmDialog,
@@ -13,6 +14,7 @@ import {
 
 export default function DevelopersPage() {
   const qc = useQueryClient();
+  const { user, isAuthenticated } = useAuthStore();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('');
@@ -21,7 +23,7 @@ export default function DevelopersPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmRemove, setConfirmRemove] = useState(false);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ['owner-devs', page, search, filter, status, country],
     queryFn: async () => {
       const body: Record<string, unknown> = { page: String(page), limit: '12' };
@@ -30,8 +32,13 @@ export default function DevelopersPage() {
       if (status)      body.status   = status;
       if (country)     body.country  = country;
       const r = await api.post('/owner/developers', body);
+      if (!r.ok) {
+        const errBody = await r.json().catch(() => ({})) as { message?: string };
+        throw new Error(errBody.message || `Request failed (${r.status})`);
+      }
       return r.json() as Promise<{ developers: Developer[]; total: number }>;
     },
+    enabled: isAuthenticated && user?.role === 'OWNER',
   });
 
   const pageIds = useMemo(
@@ -194,7 +201,26 @@ export default function DevelopersPage() {
         </div>
       )}
 
-      {isLoading ? (
+      {(!isAuthenticated || user?.role !== 'OWNER') ? (
+        <div className="flex flex-col items-center justify-center py-24 text-gray-500 gap-3">
+          <AlertCircle className="h-10 w-10 text-amber-400" />
+          <p className="text-sm font-medium">Owner sign-in required</p>
+          <p className="text-xs text-gray-400 max-w-sm text-center">
+            Sign in with your owner account to manage developers.
+          </p>
+          <Link href="/signin" className="text-sm font-semibold text-felovy-red hover:underline">
+            Go to sign in
+          </Link>
+        </div>
+      ) : isError ? (
+        <div className="flex flex-col items-center justify-center py-24 text-gray-500 gap-3">
+          <AlertCircle className="h-10 w-10 text-red-400" />
+          <p className="text-sm font-medium">Could not load developers</p>
+          <p className="text-xs text-gray-400 max-w-md text-center">
+            {(error as Error)?.message || 'The server returned an error. Check the database connection and try again.'}
+          </p>
+        </div>
+      ) : isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {Array.from({ length: 8 }).map((_, i) => <DeveloperCardSkeleton key={i} />)}
         </div>
