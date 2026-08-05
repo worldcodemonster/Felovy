@@ -26,7 +26,8 @@
     "homepage-images:compress": "node scripts/compress-homepage-images.mjs",
     "devicons:generate": "node scripts/generate-devicon-stacks.mjs",
     "linkedin-banner:generate": "node scripts/generate-linkedin-banner.mjs",
-    "board-search:migrate": "ts-node scripts/migrate-felovy-search.ts"
+    "board-search:migrate": "ts-node scripts/migrate-felovy-search.ts",
+    "db:board-search": "prisma db push"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
