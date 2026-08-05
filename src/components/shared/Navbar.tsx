@@ -80,6 +80,9 @@ export function Navbar() {
             <Link href="/jobs" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-felovy-red transition-colors">
               Jobs
             </Link>
+            <Link href="/job-board" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-felovy-red transition-colors">
+              Job Board
+            </Link>
             <Link href="/developers" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-felovy-red transition-colors">
               Developers
             </Link>

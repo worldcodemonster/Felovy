@@ -288,3 +288,46 @@ model FavoriteJob {
   @@unique([userId, jobId])
   @@map("favorite_jobs")
 }
+
+// ─── Job Board (felovy-search scraped jobs) ─────────────────────────────────
+
+model BoardJob {
+  id String @id @default(uuid())
+
+  ats           String
+  boardToken    String @map("board_token")
+  externalJobId String @map("external_job_id")
+
+  title          String?
+  companyName    String?   @map("company_name")
+  locationName   String?   @map("location_name")
+  absoluteUrl    String?   @map("absolute_url")
+  firstPublished DateTime? @map("first_published")
+  sourceUpdatedAt DateTime? @map("source_updated_at")
+  contentHtml    String?   @map("content_html") @db.Text
+  contentText    String?   @map("content_text") @db.Text
+  departmentsJson String?  @map("departments_json")
+  officesJson    String?   @map("offices_json")
+  metadataJson   String?   @map("metadata_json")
+  remoteStatus   String?   @map("remote_status")
+  language       String?
+  employmentType String?   @map("employment_type")
+  countryCode    String?   @map("country_code")
+  region         String?
+
+  logoUrl            String?  @map("logo_url")
+  scrapedAt          DateTime @default(now()) @map("scraped_at")
+  seenInLastScrape   Boolean  @default(true) @map("seen_in_last_scrape")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([ats, boardToken, externalJobId])
+  @@index([firstPublished])
+  @@index([sourceUpdatedAt])
+  @@index([ats])
+  @@index([remoteStatus])
+  @@index([region])
+  @@index([scrapedAt])
+  @@map("board_jobs")
+}
