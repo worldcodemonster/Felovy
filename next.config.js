@@ -18,6 +18,9 @@ const nextConfig = {
   },
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client', 'bcryptjs'],
+    outputFileTracingIncludes: {
+      '/api/[...all]': ['./data/**/*'],
+    },
   },
   async headers() {
     return [

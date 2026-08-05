@@ -3,16 +3,29 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { apiFetch } from '@/lib/api';
+import { useAuthStore } from '@/store/auth.store';
 import type { BoardTokenRow, PlatformRow, TokenVerifyProgress } from '@/lib/board-search-types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Upload, Search, Trash2, CheckCircle, AlertCircle, Database, Loader2,
+  Upload, Search, Trash2, CheckCircle, AlertCircle, Database, Loader2, RefreshCw,
 } from 'lucide-react';
 
 const PAGE_SIZE = 100;
 
+async function readApiError(res: Response): Promise<string> {
+  try {
+    const data = await res.json() as { message?: string };
+    return data.message || `Request failed (${res.status})`;
+  } catch {
+    return `Request failed (${res.status})`;
+  }
+}
+
 export default function BoardSearchPage() {
+  const { user, isAuthenticated } = useAuthStore();
+  const [hydrated, setHydrated] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [platforms, setPlatforms] = useState<PlatformRow[]>([]);
   const [ats, setAts] = useState('');
   const [q, setQ] = useState('');
@@ -31,14 +44,20 @@ export default function BoardSearchPage() {
 
   const refreshPlatforms = useCallback(async () => {
     const res = await apiFetch('/board-search/platforms', { method: 'POST', body: '{}' });
-    if (!res.ok) throw new Error(await res.text());
+    if (!res.ok) throw new Error(await readApiError(res));
     const data = await res.json();
-    setPlatforms(data.platforms);
-    if (!ats && data.platforms[0]) {
+    setPlatforms(data.platforms ?? []);
+    if (!ats && data.platforms?.[0]) {
       setAts(data.platforms[0].slug);
       setConcurrencyDraft(String(data.platforms[0].concurrency || 20));
     }
   }, [ats]);
+
+  const bootstrap = useCallback(async () => {
+    const initRes = await apiFetch('/board-search/init', { method: 'POST', body: '{}' });
+    if (!initRes.ok) throw new Error(await readApiError(initRes));
+    await refreshPlatforms();
+  }, [refreshPlatforms]);
 
   const reloadTokens = useCallback(async (nextPage = page) => {
     if (!ats) return;
@@ -54,10 +73,26 @@ export default function BoardSearchPage() {
   }, [ats, q, page]);
 
   useEffect(() => {
-    void apiFetch('/board-search/init', { method: 'POST', body: '{}' })
-      .then(() => refreshPlatforms())
-      .catch(err => setMessage(err instanceof Error ? err.message : String(err)));
-  }, [refreshPlatforms]);
+    if (useAuthStore.persist.hasHydrated()) setHydrated(true);
+    return useAuthStore.persist.onFinishHydration(() => setHydrated(true));
+  }, []);
+
+  const authReady = hydrated && isAuthenticated && user?.role === 'OWNER';
+
+  useEffect(() => {
+    if (!authReady) {
+      if (hydrated && (!isAuthenticated || user?.role !== 'OWNER')) {
+        setLoading(false);
+        setMessage('Sign in as an owner to manage board tokens.');
+      }
+      return;
+    }
+
+    setLoading(true);
+    void bootstrap()
+      .catch(err => setMessage(err instanceof Error ? err.message : String(err)))
+      .finally(() => setLoading(false));
+  }, [authReady, hydrated, isAuthenticated, user?.role, bootstrap]);
 
   useEffect(() => {
     if (!ats) return;
@@ -209,6 +244,14 @@ export default function BoardSearchPage() {
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
+  if (!hydrated || loading) {
+    return (
+      <div className="flex items-center justify-center py-20 text-gray-400">
+        <Loader2 className="h-6 w-6 animate-spin mr-2" /> Loading board tokens…
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -261,7 +304,14 @@ export default function BoardSearchPage() {
       <div className="grid gap-4 lg:grid-cols-[240px_1fr]">
         <div className="rounded-2xl border bg-white p-3 max-h-[520px] overflow-y-auto">
           <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide px-2 py-1">Platforms</div>
-          {platforms.map(p => (
+          {!platforms.length ? (
+            <div className="px-2 py-6 text-center text-xs text-gray-400 space-y-2">
+              <p>No platforms loaded.</p>
+              <Button variant="outline" size="sm" onClick={() => void bootstrap().catch(err => setMessage(String(err)))}>
+                <RefreshCw className="h-3 w-3 mr-1" /> Retry init
+              </Button>
+            </div>
+          ) : platforms.map(p => (
             <button
               key={p.slug}
               type="button"

@@ -3,6 +3,9 @@ import { join } from 'path';
 import { prisma } from '../config/database';
 import { EXCLUDED_PLATFORM_SLUGS } from '@/lib/excluded-platforms';
 
+// Bundled at build time so Vercel serverless can always find the catalog.
+import bundledCatalog from '../../../data/search-catalog.json';
+
 interface CatalogPlatform {
   slug: string;
   label?: string;
@@ -24,6 +27,15 @@ interface CatalogPlatform {
 
 interface Catalog {
   platforms: Record<string, CatalogPlatform>;
+}
+
+function loadCatalog(): Catalog {
+  try {
+    const path = resolveCatalogPath();
+    return JSON.parse(readFileSync(path, 'utf8')) as Catalog;
+  } catch {
+    return bundledCatalog as Catalog;
+  }
 }
 
 function resolveCatalogPath(): string {
@@ -64,13 +76,17 @@ export async function setMeta(key: string, value: string): Promise<void> {
   });
 }
 
-export async function importCatalogIfNeeded(force = false): Promise<{ platforms: number; tokens: number }> {
+export async function importCatalogIfNeeded(
+  force = false,
+  options: { seedTokens?: boolean } = {},
+): Promise<{ platforms: number; tokens: number }> {
+  const seedTokens = options.seedTokens ?? false;
+
   if (!force && (await getMeta('catalog_imported')) === '1') {
     return { platforms: 0, tokens: 0 };
   }
 
-  const raw = readFileSync(resolveCatalogPath(), 'utf8');
-  const catalog = JSON.parse(raw) as Catalog;
+  const catalog = loadCatalog();
 
   let platforms = 0;
   let tokens = 0;
@@ -113,15 +129,17 @@ export async function importCatalogIfNeeded(force = false): Promise<{ platforms:
     });
     platforms++;
 
-    for (const token of p.board_tokens ?? []) {
-      const normalized = String(token).trim().toLowerCase();
-      if (!normalized) continue;
-      await prisma.boardToken.upsert({
-        where: { ats_boardToken: { ats: slug, boardToken: normalized } },
-        create: { ats: slug, boardToken: normalized, enabled: true },
-        update: { enabled: true },
-      });
-      tokens++;
+    if (seedTokens) {
+      for (const token of p.board_tokens ?? []) {
+        const normalized = String(token).trim().toLowerCase();
+        if (!normalized) continue;
+        await prisma.boardToken.upsert({
+          where: { ats_boardToken: { ats: slug, boardToken: normalized } },
+          create: { ats: slug, boardToken: normalized, enabled: true },
+          update: { enabled: true },
+        });
+        tokens++;
+      }
     }
   }
 
@@ -129,6 +147,44 @@ export async function importCatalogIfNeeded(force = false): Promise<{ platforms:
   await setMeta('catalog_imported_at', new Date().toISOString());
 
   return { platforms, tokens };
+}
+
+/** Import seed tokens from catalog (slow — ~26k rows). Use SQLite migration instead on production. */
+export async function importCatalogSeedTokens(force = false): Promise<{ tokens: number }> {
+  if (!force && (await getMeta('catalog_tokens_imported')) === '1') {
+    return { tokens: 0 };
+  }
+
+  const catalog = loadCatalog();
+  let tokens = 0;
+  const batch: { ats: string; boardToken: string }[] = [];
+
+  for (const [slug, p] of Object.entries(catalog.platforms)) {
+    if (EXCLUDED_PLATFORM_SLUGS.has(slug)) continue;
+    for (const token of p.board_tokens ?? []) {
+      const normalized = String(token).trim().toLowerCase();
+      if (!normalized) continue;
+      batch.push({ ats: slug, boardToken: normalized });
+    }
+  }
+
+  const CHUNK = 500;
+  for (let i = 0; i < batch.length; i += CHUNK) {
+    const slice = batch.slice(i, i + CHUNK);
+    await prisma.$transaction(
+      slice.map(row =>
+        prisma.boardToken.upsert({
+          where: { ats_boardToken: { ats: row.ats, boardToken: row.boardToken } },
+          create: { ats: row.ats, boardToken: row.boardToken, enabled: true },
+          update: { enabled: true },
+        }),
+      ),
+    );
+    tokens += slice.length;
+  }
+
+  await setMeta('catalog_tokens_imported', '1');
+  return { tokens };
 }
 
 export async function purgeExcludedPlatforms(): Promise<number> {

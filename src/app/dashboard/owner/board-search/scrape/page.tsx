@@ -44,10 +44,14 @@ export default function BoardScrapePage() {
   const [concurrencyDraft, setConcurrencyDraft] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
-  const authReady = mounted && isAuthenticated && user?.role === 'OWNER';
+  const [hydrated, setHydrated] = useState(false);
 
-  const refreshAll = useCallback(async () => {
-    await boardSearchFetch('/board-search/init', {});
+  const authReady = hydrated && isAuthenticated && user?.role === 'OWNER';
+
+  const refreshAll = useCallback(async (runInit = false) => {
+    if (runInit) {
+      await boardSearchFetch('/board-search/init', {});
+    }
 
     const [agentsRes, platformsRes] = await Promise.all([
       boardSearchFetch('/board-search/scrape/agents', {}),
@@ -67,6 +71,10 @@ export default function BoardScrapePage() {
 
   useEffect(() => {
     setMounted(true);
+    if (useAuthStore.persist.hasHydrated()) {
+      setHydrated(true);
+    }
+    return useAuthStore.persist.onFinishHydration(() => setHydrated(true));
   }, []);
 
   useEffect(() => {
@@ -79,15 +87,15 @@ export default function BoardScrapePage() {
     }
 
     setLoading(true);
-    void refreshAll()
+    void refreshAll(true)
       .catch(err => {
         const msg = err instanceof Error ? err.message : String(err);
-        setError(msg.includes('abort') ? 'Request timed out. The server may be unreachable or the database tables may be missing.' : msg);
+        setError(msg.includes('abort') ? 'Request timed out. Check your connection or try again.' : msg);
       })
       .finally(() => setLoading(false));
 
     const poll = setInterval(() => {
-      void refreshAll().catch(() => {});
+      void refreshAll(false).catch(() => {});
     }, 5000);
 
     return () => clearInterval(poll);
@@ -169,7 +177,7 @@ export default function BoardScrapePage() {
   const jobsFound = agents.reduce((s, a) => s + a.jobsFound, 0);
   const rotationRunning = !!rotation?.active && !rotation?.paused;
 
-  if (!mounted || (authReady && loading)) {
+  if (!mounted || !hydrated || (authReady && loading)) {
     return (
       <div className="flex items-center justify-center py-20 text-gray-400">
         <Loader2 className="h-6 w-6 animate-spin mr-2" /> Loading scrape agents…
