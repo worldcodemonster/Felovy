@@ -51,6 +51,7 @@ export async function purgeExcluded(_req: Request, res: Response): Promise<void>
 }
 
 export async function getPlatforms(_req: Request, res: Response): Promise<void> {
+  await importCatalogIfNeeded();
   const platforms = await listPlatforms();
   res.json({ platforms });
 }
@@ -164,6 +165,7 @@ export async function removeToken(req: Request, res: Response): Promise<void> {
 }
 
 export async function getScrapeAgents(_req: Request, res: Response): Promise<void> {
+  await importCatalogIfNeeded();
   const [agents, rotation] = await Promise.all([getAgentStatuses(), getRotationStatus()]);
   res.json({ agents, rotation });
 }

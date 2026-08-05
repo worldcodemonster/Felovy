@@ -43,7 +43,19 @@ app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'Felovy 
 
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('[Felovy] Express error:', err.message);
-  res.status(500).json({ message: 'Internal server error' });
+  const msg = err.message || '';
+  const missingTable =
+    msg.includes('does not exist') ||
+    msg.includes('P2021') ||
+    msg.includes('board_platforms') ||
+    msg.includes('board_tokens');
+  if (missingTable) {
+    res.status(503).json({
+      message: 'Board search database tables are missing. Run `npx prisma db push` on the production database.',
+    });
+    return;
+  }
+  res.status(500).json({ message: err.message || 'Internal server error' });
 });
 
 export default app;

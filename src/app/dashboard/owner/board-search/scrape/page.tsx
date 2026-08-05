@@ -3,12 +3,40 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { apiFetch } from '@/lib/api';
+import { useAuthStore } from '@/store/auth.store';
 import type { AgentStatus, PlatformRow, RotationStatus } from '@/lib/board-search-types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Play, Pause, Square, ArrowUp, ArrowDown, Loader2 } from 'lucide-react';
+import { Play, Pause, Square, ArrowUp, ArrowDown, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+
+const FETCH_TIMEOUT_MS = 20_000;
+
+async function boardSearchFetch(path: string, body: unknown = {}): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    return await apiFetch(path, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function readApiError(res: Response): Promise<string> {
+  try {
+    const data = await res.json() as { message?: string };
+    return data.message || `Request failed (${res.status})`;
+  } catch {
+    return `Request failed (${res.status})`;
+  }
+}
 
 export default function BoardScrapePage() {
+  const { user, isAuthenticated } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
   const [agents, setAgents] = useState<AgentStatus[]>([]);
   const [platforms, setPlatforms] = useState<PlatformRow[]>([]);
   const [rotation, setRotation] = useState<RotationStatus | null>(null);
@@ -16,30 +44,54 @@ export default function BoardScrapePage() {
   const [concurrencyDraft, setConcurrencyDraft] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
+  const authReady = mounted && isAuthenticated && user?.role === 'OWNER';
+
   const refreshAll = useCallback(async () => {
+    await boardSearchFetch('/board-search/init', {});
+
     const [agentsRes, platformsRes] = await Promise.all([
-      apiFetch('/board-search/scrape/agents', { method: 'POST', body: '{}' }),
-      apiFetch('/board-search/platforms', { method: 'POST', body: '{}' }),
+      boardSearchFetch('/board-search/scrape/agents', {}),
+      boardSearchFetch('/board-search/platforms', {}),
     ]);
-    if (!agentsRes.ok || !platformsRes.ok) throw new Error('Failed to load scrape state');
+
+    if (!agentsRes.ok) throw new Error(await readApiError(agentsRes));
+    if (!platformsRes.ok) throw new Error(await readApiError(platformsRes));
+
     const agentsData = await agentsRes.json();
     const platformsData = await platformsRes.json();
-    setAgents(agentsData.agents);
-    setRotation(agentsData.rotation);
-    setPlatforms(platformsData.platforms);
+    setAgents(agentsData.agents ?? []);
+    setRotation(agentsData.rotation ?? null);
+    setPlatforms(platformsData.platforms ?? []);
+    setError(null);
   }, []);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!authReady) {
+      if (mounted && (!isAuthenticated || user?.role !== 'OWNER')) {
+        setLoading(false);
+        setError('Sign in as an owner to manage scraping.');
+      }
+      return;
+    }
+
+    setLoading(true);
     void refreshAll()
-      .catch(err => setError(err instanceof Error ? err.message : String(err)))
+      .catch(err => {
+        const msg = err instanceof Error ? err.message : String(err);
+        setError(msg.includes('abort') ? 'Request timed out. The server may be unreachable or the database tables may be missing.' : msg);
+      })
       .finally(() => setLoading(false));
 
     const poll = setInterval(() => {
       void refreshAll().catch(() => {});
-    }, 3000);
+    }, 5000);
 
     return () => clearInterval(poll);
-  }, [refreshAll]);
+  }, [authReady, mounted, isAuthenticated, user?.role, refreshAll]);
 
   useEffect(() => {
     setConcurrencyDraft(prev => {
@@ -60,7 +112,8 @@ export default function BoardScrapePage() {
   async function onToggle(ats: string) {
     setError(null);
     try {
-      await apiFetch('/board-search/scrape/toggle', { method: 'POST', body: JSON.stringify({ ats }) });
+      const res = await boardSearchFetch('/board-search/scrape/toggle', { ats });
+      if (!res.ok) throw new Error(await readApiError(res));
       await refreshAll();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -68,7 +121,8 @@ export default function BoardScrapePage() {
   }
 
   async function onStop(ats: string) {
-    await apiFetch('/board-search/scrape/stop', { method: 'POST', body: JSON.stringify({ ats }) });
+    const res = await boardSearchFetch('/board-search/scrape/stop', { ats });
+    if (!res.ok) throw new Error(await readApiError(res));
     await refreshAll();
   }
 
@@ -78,20 +132,16 @@ export default function BoardScrapePage() {
     if (!Number.isFinite(n) || n < 1) return;
     const clamped = Math.max(1, Math.min(100, Math.round(n)));
     setConcurrencyDraft(d => ({ ...d, [ats]: String(clamped) }));
-    await apiFetch('/board-search/scrape/concurrency', {
-      method: 'POST',
-      body: JSON.stringify({ ats, concurrency: clamped }),
-    });
+    const res = await boardSearchFetch('/board-search/scrape/concurrency', { ats, concurrency: clamped });
+    if (!res.ok) throw new Error(await readApiError(res));
     await refreshAll();
   }
 
   async function onMove(ats: string, direction: 'up' | 'down') {
     setError(null);
     try {
-      await apiFetch('/board-search/platforms/move', {
-        method: 'POST',
-        body: JSON.stringify({ slug: ats, direction }),
-      });
+      const res = await boardSearchFetch('/board-search/platforms/move', { slug: ats, direction });
+      if (!res.ok) throw new Error(await readApiError(res));
       await refreshAll();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -101,7 +151,8 @@ export default function BoardScrapePage() {
   async function onRotationToggle() {
     setError(null);
     try {
-      await apiFetch('/board-search/scrape/rotation/toggle', { method: 'POST', body: '{}' });
+      const res = await boardSearchFetch('/board-search/scrape/rotation/toggle', {});
+      if (!res.ok) throw new Error(await readApiError(res));
       await refreshAll();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -109,7 +160,8 @@ export default function BoardScrapePage() {
   }
 
   async function onRotationStop() {
-    await apiFetch('/board-search/scrape/rotation/stop', { method: 'POST', body: '{}' });
+    const res = await boardSearchFetch('/board-search/scrape/rotation/stop', {});
+    if (!res.ok) throw new Error(await readApiError(res));
     await refreshAll();
   }
 
@@ -117,10 +169,28 @@ export default function BoardScrapePage() {
   const jobsFound = agents.reduce((s, a) => s + a.jobsFound, 0);
   const rotationRunning = !!rotation?.active && !rotation?.paused;
 
-  if (loading) {
+  if (!mounted || (authReady && loading)) {
     return (
       <div className="flex items-center justify-center py-20 text-gray-400">
         <Loader2 className="h-6 w-6 animate-spin mr-2" /> Loading scrape agents…
+      </div>
+    );
+  }
+
+  if (error && !agents.length) {
+    return (
+      <div className="max-w-lg mx-auto py-20 text-center space-y-4">
+        <AlertCircle className="h-10 w-10 text-amber-500 mx-auto" />
+        <h1 className="text-lg font-semibold text-gray-900">Could not load scraping</h1>
+        <p className="text-sm text-gray-500">{error}</p>
+        <div className="flex gap-2 justify-center">
+          <Button variant="outline" onClick={() => { setLoading(true); void refreshAll().finally(() => setLoading(false)); }}>
+            <RefreshCw className="h-4 w-4 mr-2" /> Retry
+          </Button>
+          <Link href="/dashboard/owner/board-search">
+            <Button variant="gradient">Board Tokens</Button>
+          </Link>
+        </div>
       </div>
     );
   }
@@ -180,7 +250,17 @@ export default function BoardScrapePage() {
             </tr>
           </thead>
           <tbody>
-            {agents.map(a => {
+            {agents.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-4 py-10 text-center text-gray-400">
+                  No platforms yet. Open{' '}
+                  <Link href="/dashboard/owner/board-search" className="text-felovy-red underline">
+                    Board Tokens
+                  </Link>{' '}
+                  to import the catalog or migrate from SQLite.
+                </td>
+              </tr>
+            ) : agents.map(a => {
               const canScrape = scrapeable.get(a.ats);
               const status = a.running ? (a.paused ? 'Paused' : 'Running') : 'Idle';
               return (
@@ -210,7 +290,7 @@ export default function BoardScrapePage() {
                       className="w-16 h-8 text-xs"
                       value={concurrencyDraft[a.ats] ?? String(a.concurrency)}
                       onChange={e => setConcurrencyDraft(d => ({ ...d, [a.ats]: e.target.value }))}
-                      onBlur={() => void commitConcurrency(a.ats)}
+                      onBlur={() => void commitConcurrency(a.ats).catch(err => setError(String(err)))}
                       disabled={!canScrape}
                     />
                   </td>

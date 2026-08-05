@@ -5,9 +5,13 @@ export interface AuthRequest extends Request {
   user?: JwtPayload;
 }
 
-// Cast a handler that receives AuthRequest to a plain RequestHandler for Express router compatibility
-export const asHandler = (fn: (req: AuthRequest, res: Response, next?: NextFunction) => void | Promise<void>): RequestHandler =>
-  fn as unknown as RequestHandler;
+// Wrap async route handlers so rejected promises reach Express error middleware.
+export const asHandler = (
+  fn: (req: AuthRequest, res: Response, next?: NextFunction) => void | Promise<void>,
+): RequestHandler =>
+  ((req, res, next) => {
+    Promise.resolve(fn(req as AuthRequest, res, next)).catch(next);
+  }) as RequestHandler;
 
 export const authenticate: RequestHandler = (req, res, next) => {
   const header = req.headers.authorization;
