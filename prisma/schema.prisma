@@ -331,3 +331,53 @@ model BoardJob {
   @@index([scrapedAt])
   @@map("board_jobs")
 }
+
+// ─── Job Board Search (felovy-search platforms & tokens) ────────────────────
+
+model BoardPlatform {
+  slug                String  @id
+  label               String
+  domain              String?
+  integration         String?
+  listUrlTemplate     String? @map("list_url_template")
+  headersJson         String  @default("{\"User-Agent\":\"Felovy/1.0\"}") @map("headers_json")
+  paginationJson      String? @map("pagination_json")
+  jobsPath            String? @map("jobs_path")
+  responseFormat      String? @map("response_format")
+  descriptionFromList Boolean @default(false) @map("description_from_list")
+  scrapeable          Boolean @default(false)
+  concurrency         Int     @default(10)
+  agentEnabled        Boolean @default(false) @map("agent_enabled")
+  sortOrder           Int     @default(0) @map("sort_order")
+  catalogJson         String? @map("catalog_json") @db.Text
+
+  tokens BoardToken[]
+
+  @@map("board_platforms")
+}
+
+model BoardToken {
+  ats           String
+  boardToken    String        @map("board_token")
+  platform      BoardPlatform @relation(fields: [ats], references: [slug], onDelete: Cascade)
+  enabled       Boolean       @default(true)
+  lastScrapedAt DateTime?     @map("last_scraped_at")
+  lastStatus    String?       @map("last_status")
+  lastError     String?       @map("last_error") @db.Text
+  lastJobCount  Int?          @map("last_job_count")
+  logoUrl       String?       @map("logo_url")
+  logoFetchedAt DateTime?     @map("logo_fetched_at")
+  openedCount   Int           @default(0) @map("opened_count")
+
+  @@id([ats, boardToken])
+  @@index([ats])
+  @@index([boardToken])
+  @@map("board_tokens")
+}
+
+model AppMeta {
+  key   String @id
+  value String @db.Text
+
+  @@map("app_meta")
+}

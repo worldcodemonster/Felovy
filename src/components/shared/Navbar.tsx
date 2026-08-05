@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { FelovyLogo } from '@/components/shared/FelovyLogo';
 import { api } from '@/lib/api';
-import { LogOut, Users, Building2, Briefcase, MessageSquare } from 'lucide-react';
+import { LogOut, Users, Building2, Briefcase, MessageSquare, Layers, Radar } from 'lucide-react';
 import { Breadcrumb } from './Breadcrumb';
 
 const dashboardHref: Record<string, string> = {
@@ -22,6 +22,8 @@ const OWNER_NAV = [
   { label: 'Developers', icon: Users,         href: '/dashboard/owner/developers' },
   { label: 'Employers',  icon: Building2,     href: '/dashboard/owner/employers'  },
   { label: 'Jobs',       icon: Briefcase,     href: '/dashboard/owner/jobs'       },
+  { label: 'Boards',     icon: Layers,        href: '/dashboard/owner/board-search' },
+  { label: 'Scrape',     icon: Radar,         href: '/dashboard/owner/board-search/scrape' },
   { label: 'Messages',   icon: MessageSquare, href: '/dashboard/owner/messages'   },
 ];
 

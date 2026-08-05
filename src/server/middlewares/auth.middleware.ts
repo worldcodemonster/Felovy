@@ -23,6 +23,23 @@ export const authenticate: RequestHandler = (req, res, next) => {
   }
 };
 
+/** SSE clients (EventSource) cannot send Authorization headers — accept ?token= as fallback. */
+export const authenticateQueryOrHeader: RequestHandler = (req, res, next) => {
+  const header = req.headers.authorization;
+  const queryToken = typeof req.query.token === 'string' ? req.query.token : null;
+  const raw = header?.startsWith('Bearer ') ? header.slice(7) : queryToken;
+  if (!raw) {
+    res.status(401).json({ message: 'No token provided' });
+    return;
+  }
+  try {
+    (req as AuthRequest).user = verifyAccessToken(raw);
+    next();
+  } catch {
+    res.status(401).json({ message: 'Invalid or expired token' });
+  }
+};
+
 export const requireRole =
   (...roles: string[]): RequestHandler =>
   (req, res, next) => {

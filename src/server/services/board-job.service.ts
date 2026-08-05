@@ -280,3 +280,80 @@ export async function getBoardJobStats(): Promise<{ total: number }> {
   const total = await prisma.boardJob.count();
   return { total };
 }
+
+/** Upsert scraped jobs for one board and prune jobs missing from the latest scrape. */
+export async function upsertJobsAndPruneMissing(
+  ats: string,
+  boardToken: string,
+  jobs: import('@/lib/board-search-types').UnifiedJob[],
+  logoUrl?: string | null,
+): Promise<{ upserted: number; pruned: number }> {
+  const now = new Date();
+
+  await prisma.boardJob.updateMany({
+    where: { ats, boardToken },
+    data: { seenInLastScrape: false },
+  });
+
+  for (const job of jobs) {
+    const region = inferRegion(job.country_code, job.location_name);
+    const data = {
+      title: job.title,
+      companyName: job.company_name,
+      locationName: job.location_name,
+      absoluteUrl: job.absolute_url,
+      firstPublished: job.first_published ? parseDate(job.first_published) : null,
+      sourceUpdatedAt: job.updated_at ? parseDate(job.updated_at) : null,
+      contentHtml: job.content_html,
+      contentText: job.content_text,
+      departmentsJson: job.departments_json,
+      officesJson: job.offices_json,
+      metadataJson: job.metadata_json,
+      remoteStatus: normalizeRemoteStatus(job.remote_status),
+      language: job.language,
+      employmentType: job.employment_type,
+      countryCode: job.country_code,
+      region,
+      logoUrl: logoUrl ?? undefined,
+      scrapedAt: now,
+      seenInLastScrape: true,
+    };
+
+    await prisma.boardJob.upsert({
+      where: {
+        ats_boardToken_externalJobId: {
+          ats,
+          boardToken,
+          externalJobId: job.job_id,
+        },
+      },
+      create: {
+        ats,
+        boardToken,
+        externalJobId: job.job_id,
+        ...data,
+      },
+      update: {
+        ...data,
+        firstPublished: data.firstPublished ?? undefined,
+        sourceUpdatedAt: data.sourceUpdatedAt ?? undefined,
+        contentHtml: data.contentHtml ?? undefined,
+        contentText: data.contentText ?? undefined,
+        updatedAt: now,
+      },
+    });
+  }
+
+  const stale = await prisma.boardJob.findMany({
+    where: { ats, boardToken, seenInLastScrape: false },
+    select: { id: true },
+  });
+
+  if (stale.length) {
+    await prisma.boardJob.deleteMany({
+      where: { id: { in: stale.map(s => s.id) } },
+    });
+  }
+
+  return { upserted: jobs.length, pruned: stale.length };
+}
